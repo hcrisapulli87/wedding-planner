@@ -3,7 +3,7 @@ import { useData } from '../data/DataProvider'
 import type { DayEvent } from '../data/types'
 
 export default function RunSheetSection() {
-  const { dayEvents, vendors, insert, update, remove } = useData()
+  const { dayEvents, vendors, partyMembers, settings, insert, update, remove } = useData()
   const [editing, setEditing] = useState<DayEvent | null>(null)
   const [adding, setAdding] = useState(false)
 
@@ -117,7 +117,12 @@ export default function RunSheetSection() {
             </div>
             <div className="field">
               <label htmlFor="rs-who">Who</label>
-              <input id="rs-who" placeholder="e.g. wedding party" value={who} onChange={(e) => setWho(e.target.value)} />
+              <input id="rs-who" list="rs-who-options" placeholder="e.g. wedding party" value={who} onChange={(e) => setWho(e.target.value)} />
+              <datalist id="rs-who-options">
+                {[settings.partner_a, settings.partner_b, 'Wedding party', ...partyMembers.map((m) => m.name)].map((n) => (
+                  <option key={n} value={n} />
+                ))}
+              </datalist>
             </div>
           </div>
           <div className="field">
