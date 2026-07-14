@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthProvider'
 import Layout from './components/Layout'
 import { DataProvider } from './data/DataProvider'
+import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
 import Login from './screens/Login'
 import More from './screens/More'
@@ -34,7 +35,7 @@ function AppRoutes() {
       <Route element={<Layout />}>
         <Route path="/" element={<Stub name="Home" />} />
         <Route path="/checklist" element={<Checklist />} />
-        <Route path="/budget" element={<Stub name="Budget" />} />
+        <Route path="/budget" element={<Budget />} />
         <Route path="/vendors" element={<Stub name="Vendors" />} />
         <Route path="/guests" element={<Stub name="Guests" />} />
         <Route path="/ideas" element={<Stub name="Ideas" />} />
