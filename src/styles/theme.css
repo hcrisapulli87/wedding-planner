@@ -521,9 +521,8 @@ html, body {
 @media print {
   body { background: #fff; color: #000; }
   body * { visibility: hidden; }
-  .print-view, .print-view *,
-  .print-runsheet, .print-runsheet * { visibility: visible; }
-  .print-view, .print-runsheet {
+  .print-view, .print-view * { visibility: visible; }
+  .print-view {
     position: absolute;
     inset: 0;
     padding: 24px;
@@ -532,9 +531,8 @@ html, body {
     border: none;
     box-shadow: none;
   }
-  .print-view .row, .print-runsheet .row { border-color: #ccc; }
-  .print-view .row-sub, .print-runsheet .row-sub { color: #444; }
-  .print-view .btn, .print-view [data-noprint],
-  .print-runsheet .btn, .print-runsheet [data-noprint] { display: none !important; }
+  .print-view .row { border-color: #ccc; }
+  .print-view .row-sub { color: #444; }
+  .print-view .btn, .print-view [data-noprint] { display: none !important; }
   .tabbar, .fab { display: none; }
 }

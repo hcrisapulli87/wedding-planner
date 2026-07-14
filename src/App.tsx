@@ -4,6 +4,11 @@ import Layout from './components/Layout'
 import { DataProvider } from './data/DataProvider'
 import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
+import DietaryPrint from './screens/exports/DietaryPrint'
+import Exports from './screens/Exports'
+import GuestListPrint from './screens/exports/GuestListPrint'
+import MusicPrint from './screens/exports/MusicPrint'
+import SeatingPrint from './screens/exports/SeatingPrint'
 import Gifts from './screens/Gifts'
 import Guests from './screens/Guests'
 import Honeymoon from './screens/Honeymoon'
@@ -55,6 +60,11 @@ function AppRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/key-dates" element={<KeyDates />} />
         <Route path="/run-sheet" element={<RunSheet />} />
+        <Route path="/exports" element={<Exports />} />
+        <Route path="/exports/dietary" element={<DietaryPrint />} />
+        <Route path="/exports/guests" element={<GuestListPrint />} />
+        <Route path="/exports/seating" element={<SeatingPrint />} />
+        <Route path="/exports/music" element={<MusicPrint />} />
       </Route>
     </Routes>
   )

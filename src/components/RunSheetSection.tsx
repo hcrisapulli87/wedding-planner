@@ -67,7 +67,7 @@ export default function RunSheetSection() {
   }
 
   return (
-    <section className="card print-runsheet">
+    <section className="card print-view">
       <div className="row" style={{ border: 0, paddingTop: 0 }}>
         <h2 className="card-title grow" style={{ margin: 0 }}>
           Day-of run sheet
