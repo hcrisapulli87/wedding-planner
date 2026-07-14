@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import { DataProvider } from './data/DataProvider'
 import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
+import Gifts from './screens/Gifts'
 import Guests from './screens/Guests'
 import Home from './screens/Home'
 import Ideas from './screens/Ideas'
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/guests" element={<Guests />} />
         <Route path="/ideas" element={<Ideas />} />
+        <Route path="/gifts" element={<Gifts />} />
         <Route path="/plan" element={<Plan />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/key-dates" element={<KeyDates />} />

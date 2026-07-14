@@ -42,8 +42,6 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
   const [dietary, setDietary] = useState(guest?.dietary ?? '')
   const [isChild, setIsChild] = useState(guest?.is_child ?? false)
   const [isPlusOne, setIsPlusOne] = useState(guest?.is_plus_one ?? false)
-  const [thankYou, setThankYou] = useState(guest?.thank_you_sent ?? false)
-
   const setMember = (i: number, patch: Partial<MemberDraft>) => {
     setMembers(members.map((m, j) => (j === i ? { ...m, ...patch } : m)))
   }
@@ -85,7 +83,6 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
         dietary,
         is_child: isChild,
         is_plus_one: isPlusOne,
-        thank_you_sent: thankYou,
       })
       onClose()
     } finally {
@@ -163,9 +160,6 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
           </label>
           <label className="checkbox-line">
             <input type="checkbox" checked={isPlusOne} onChange={(e) => setIsPlusOne(e.target.checked)} /> Plus-one
-          </label>
-          <label className="checkbox-line">
-            <input type="checkbox" checked={thankYou} onChange={(e) => setThankYou(e.target.checked)} /> Thank-you sent
           </label>
           <div className="sheet-actions">
             <button className="btn danger" onClick={() => void del()} disabled={saving}>
