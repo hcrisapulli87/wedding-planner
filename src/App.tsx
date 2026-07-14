@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './auth/AuthProvider'
 import Layout from './components/Layout'
 import { DataProvider } from './data/DataProvider'
 import Login from './screens/Login'
+import More from './screens/More'
 
 function Stub({ name }: { name: string }) {
   return <main className="screen">{name}</main>
@@ -36,7 +37,7 @@ function AppRoutes() {
         <Route path="/vendors" element={<Stub name="Vendors" />} />
         <Route path="/guests" element={<Stub name="Guests" />} />
         <Route path="/ideas" element={<Stub name="Ideas" />} />
-        <Route path="/more" element={<Stub name="More" />} />
+        <Route path="/more" element={<More />} />
       </Route>
     </Routes>
   )
