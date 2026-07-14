@@ -5,14 +5,11 @@ import { DataProvider } from './data/DataProvider'
 import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
 import Guests from './screens/Guests'
+import Home from './screens/Home'
 import Ideas from './screens/Ideas'
 import Login from './screens/Login'
 import More from './screens/More'
 import Vendors from './screens/Vendors'
-
-function Stub({ name }: { name: string }) {
-  return <main className="screen">{name}</main>
-}
 
 function Shell() {
   const { loading, session } = useAuth()
@@ -36,7 +33,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Stub name="Home" />} />
+        <Route path="/" element={<Home />} />
         <Route path="/checklist" element={<Checklist />} />
         <Route path="/budget" element={<Budget />} />
         <Route path="/vendors" element={<Vendors />} />
