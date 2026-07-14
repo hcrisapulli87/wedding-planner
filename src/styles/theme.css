@@ -454,5 +454,6 @@ html, body {
   }
   .print-runsheet .row { border-color: #ccc; }
   .print-runsheet .row-sub { color: #444; }
+  .print-runsheet .btn, .print-runsheet [data-noprint] { display: none !important; }
   .tabbar, .fab { display: none; }
 }

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
+import KeyDatesSection from '../components/KeyDatesSection'
+import RunSheetSection from '../components/RunSheetSection'
 import { useData } from '../data/DataProvider'
 import { updateRow } from '../data/api'
 import { recomputeDueDates } from '../domain/dueDates'
@@ -101,15 +103,9 @@ export default function More() {
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="card-title">Key dates</h2>
-        <p className="empty">Coming soon.</p>
-      </section>
+      <KeyDatesSection />
 
-      <section className="card">
-        <h2 className="card-title">Day-of run sheet</h2>
-        <p className="empty">Coming soon.</p>
-      </section>
+      <RunSheetSection />
 
       <button className="btn danger block" onClick={() => void signOut()}>
         Sign out
