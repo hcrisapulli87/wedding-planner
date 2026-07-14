@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthProvider'
 import Layout from './components/Layout'
+import { DataProvider } from './data/DataProvider'
 import Login from './screens/Login'
 
 function Stub({ name }: { name: string }) {
@@ -18,6 +19,14 @@ function Shell() {
     )
   }
   if (!session) return <Login />
+  return (
+    <DataProvider>
+      <AppRoutes />
+    </DataProvider>
+  )
+}
+
+function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
