@@ -18,6 +18,7 @@ function Shell() {
       <main className="login">
         <div className="rings">💍</div>
         <h1 className="wordmark">Everafter</h1>
+        <hr className="rule-ornament" />
       </main>
     )
   }

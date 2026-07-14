@@ -73,6 +73,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       <main className="login">
         <div className="rings">💍</div>
         <h1 className="wordmark">Everafter</h1>
+        <hr className="rule-ornament" />
         <p className="text-dim">Loading…</p>
       </main>
     )

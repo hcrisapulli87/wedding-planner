@@ -37,7 +37,7 @@ const KIND_META = {
 } as const
 
 export default function Home() {
-  const { settings, tasks, payments, budgetItems, keyDates, guests } = useData()
+  const { settings, tasks, payments, budgetItems, keyDates, guests, vendors } = useData()
   const navigate = useNavigate()
 
   const today = todayIso()
@@ -49,31 +49,34 @@ export default function Home() {
   const committedPct = total ? Math.min((r.total.committed / total) * 100, 100) : 0
   const paidPct = total ? Math.min((r.total.paid / total) * 100, 100) : 0
   const days = settings.wedding_date ? daysUntil(settings.wedding_date) : null
+  const venue = settings.venue_vendor_id ? vendors.find((v) => v.id === settings.venue_vendor_id) : undefined
 
   return (
     <main className="screen">
       <header className="screen-header">
         <h1 className="wordmark">Everafter</h1>
-        <Link to="/more" className="gear" aria-label="Settings">
+        <Link to="/settings" className="gear" aria-label="Settings">
           ⚙️
         </Link>
       </header>
 
       {settings.wedding_date && days !== null ? (
         <section className="card countdown">
+          <div className="kicker">{settings.partner_a} & {settings.partner_b}</div>
           <div className="days">{days > 0 ? days : days === 0 ? '💍' : '💞'}</div>
-          <div className="sub">
-            {days > 0 ? `day${days === 1 ? '' : 's'} to go` : days === 0 ? "It's today — get married!" : 'Married!'}
+          <div className="tagline">
+            {days > 0 ? 'days until we say I do' : days === 0 ? "it's today — get married!" : 'married!'}
           </div>
           <div className="sub">
-            {settings.partner_a} & {settings.partner_b} — {longDate(settings.wedding_date)}
+            {longDate(settings.wedding_date)}
+            {venue && ` · ${venue.name}${venue.location ? ` · ${venue.location}` : ''}`}
           </div>
         </section>
       ) : (
         <section className="card countdown">
           <div className="days">💍</div>
           <div className="sub">
-            No date yet — <Link to="/more">set your wedding date</Link> or work through the{' '}
+            No date yet — <Link to="/settings">set your wedding date</Link> or work through the{' '}
             <Link to="/checklist">first checklist steps</Link>.
           </div>
         </section>
