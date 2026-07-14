@@ -164,3 +164,70 @@ export interface DayEvent {
   notes: string
   sort_order: number
 }
+
+export type GiftKind = 'physical' | 'cash' | 'voucher'
+export type PartyRole =
+  | 'maid_of_honour'
+  | 'bridesmaid'
+  | 'best_man'
+  | 'groomsman'
+  | 'mc'
+  | 'flower_girl'
+  | 'page_boy'
+  | 'other'
+export type OutfitStatus = 'todo' | 'ordered' | 'fitted' | 'ready'
+export type SongList = 'must_play' | 'do_not_play' | 'moment'
+export type HoneymoonKind = 'booking' | 'activity'
+
+export interface Gift {
+  id: string
+  giver: string
+  description: string
+  kind: GiftKind
+  amount: number | null
+  received_date: string
+  thank_you_sent: boolean
+  thank_you_sent_at: string | null
+  notes: string
+  created_at: string
+}
+
+export interface PartyMember {
+  id: string
+  name: string
+  side: 'a' | 'b'
+  role: PartyRole
+  phone: string
+  outfit_status: OutfitStatus
+  notes: string
+  sort_order: number
+}
+
+export interface Song {
+  id: string
+  list: SongList
+  moment_label: string
+  title: string
+  artist: string
+  notes: string
+  sort_order: number
+}
+
+export interface HoneymoonItem {
+  id: string
+  kind: HoneymoonKind
+  title: string
+  start_date: string | null
+  end_date: string | null
+  confirmation_ref: string
+  cost: number | null
+  notes: string
+}
+
+export interface PackingItem {
+  id: string
+  item: string
+  packed: boolean
+  who: Assignee
+  sort_order: number
+}

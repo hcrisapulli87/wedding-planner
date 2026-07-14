@@ -2,12 +2,17 @@ import { supabase } from '../lib/supabase'
 import type {
   BudgetItem,
   DayEvent,
+  Gift,
   Guest,
+  HoneymoonItem,
   Idea,
   KeyDate,
+  PackingItem,
+  PartyMember,
   Payment,
   Profile,
   SeatTable,
+  Song,
   Vendor,
   WeddingSettings,
   WeddingTask,
@@ -56,6 +61,11 @@ export interface AllData {
   keyDates: KeyDate[]
   dayEvents: DayEvent[]
   profiles: Profile[]
+  gifts: Gift[]
+  partyMembers: PartyMember[]
+  songs: Song[]
+  honeymoonItems: HoneymoonItem[]
+  packingItems: PackingItem[]
 }
 
 async function fetchSettings(): Promise<WeddingSettings> {
@@ -65,7 +75,7 @@ async function fetchSettings(): Promise<WeddingSettings> {
 }
 
 export async function fetchAll(): Promise<AllData> {
-  const [settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles] =
+  const [settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles, gifts, partyMembers, songs, honeymoonItems, packingItems] =
     await Promise.all([
       fetchSettings(),
       list<WeddingTask>('wedding_tasks', 'sort_order'),
@@ -78,6 +88,11 @@ export async function fetchAll(): Promise<AllData> {
       list<KeyDate>('wedding_key_dates', 'date'),
       list<DayEvent>('wedding_day_events', 'sort_order'),
       list<Profile>('profiles', 'display_name'),
+      list<Gift>('wedding_gifts', 'received_date'),
+      list<PartyMember>('wedding_party_members', 'sort_order'),
+      list<Song>('wedding_songs', 'sort_order'),
+      list<HoneymoonItem>('wedding_honeymoon_items', 'title'),
+      list<PackingItem>('wedding_packing_items', 'sort_order'),
     ])
-  return { settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles }
+  return { settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles, gifts, partyMembers, songs, honeymoonItems, packingItems }
 }

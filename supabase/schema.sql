@@ -124,6 +124,59 @@ create table if not exists public.wedding_day_events (
   sort_order integer not null default 0
 );
 
+create table if not exists public.wedding_gifts (
+  id                 uuid primary key default gen_random_uuid(),
+  giver              text not null,
+  description        text not null default '',
+  kind               text not null default 'physical' check (kind in ('physical','cash','voucher')),
+  amount             numeric(12,2),
+  received_date      date not null default current_date,
+  thank_you_sent     boolean not null default false,
+  thank_you_sent_at  timestamptz,
+  notes              text not null default '',
+  created_at         timestamptz not null default now()
+);
+
+create table if not exists public.wedding_party_members (
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null,
+  side          text not null default 'a' check (side in ('a','b')),
+  role          text not null default 'other' check (role in ('maid_of_honour','bridesmaid','best_man','groomsman','mc','flower_girl','page_boy','other')),
+  phone         text not null default '',
+  outfit_status text not null default 'todo' check (outfit_status in ('todo','ordered','fitted','ready')),
+  notes         text not null default '',
+  sort_order    integer not null default 0
+);
+
+create table if not exists public.wedding_songs (
+  id           uuid primary key default gen_random_uuid(),
+  list         text not null default 'must_play' check (list in ('must_play','do_not_play','moment')),
+  moment_label text not null default '',
+  title        text not null,
+  artist       text not null default '',
+  notes        text not null default '',
+  sort_order   integer not null default 0
+);
+
+create table if not exists public.wedding_honeymoon_items (
+  id               uuid primary key default gen_random_uuid(),
+  kind             text not null default 'booking' check (kind in ('booking','activity')),
+  title            text not null,
+  start_date       date,
+  end_date         date,
+  confirmation_ref text not null default '',
+  cost             numeric(12,2),
+  notes            text not null default ''
+);
+
+create table if not exists public.wedding_packing_items (
+  id         uuid primary key default gen_random_uuid(),
+  item       text not null,
+  packed     boolean not null default false,
+  who        text not null default 'both' check (who in ('a','b','both')),
+  sort_order integer not null default 0
+);
+
 create index if not exists wedding_tasks_due_idx     on public.wedding_tasks (due_date);
 create index if not exists wedding_guests_table_idx  on public.wedding_guests (table_id);
 create index if not exists wedding_payments_item_idx on public.wedding_payments (budget_item_id);
@@ -137,7 +190,7 @@ insert into public.wedding_settings (id) values (1) on conflict (id) do nothing;
 do $$
 declare t text;
 begin
-  foreach t in array array['wedding_settings','wedding_tasks','wedding_budget_items','wedding_payments','wedding_vendors','wedding_guests','wedding_tables','wedding_ideas','wedding_key_dates','wedding_day_events'] loop
+  foreach t in array array['wedding_settings','wedding_tasks','wedding_budget_items','wedding_payments','wedding_vendors','wedding_guests','wedding_tables','wedding_ideas','wedding_key_dates','wedding_day_events','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "%s: read all (authenticated)" on public.%I', t, t);
     execute format('create policy "%s: read all (authenticated)" on public.%I for select to authenticated using (true)', t, t);
@@ -151,7 +204,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['wedding_tasks','wedding_guests','wedding_budget_items','wedding_payments','wedding_vendors','wedding_settings'] loop
+  foreach t in array array['wedding_tasks','wedding_guests','wedding_budget_items','wedding_payments','wedding_vendors','wedding_settings','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items'] loop
     if not exists (
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
