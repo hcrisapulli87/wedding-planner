@@ -6,6 +6,7 @@ import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
 import Login from './screens/Login'
 import More from './screens/More'
+import Vendors from './screens/Vendors'
 
 function Stub({ name }: { name: string }) {
   return <main className="screen">{name}</main>
@@ -36,7 +37,7 @@ function AppRoutes() {
         <Route path="/" element={<Stub name="Home" />} />
         <Route path="/checklist" element={<Checklist />} />
         <Route path="/budget" element={<Budget />} />
-        <Route path="/vendors" element={<Stub name="Vendors" />} />
+        <Route path="/vendors" element={<Vendors />} />
         <Route path="/guests" element={<Stub name="Guests" />} />
         <Route path="/ideas" element={<Stub name="Ideas" />} />
         <Route path="/more" element={<More />} />
