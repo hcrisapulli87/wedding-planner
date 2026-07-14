@@ -6,6 +6,7 @@ import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
 import Gifts from './screens/Gifts'
 import Guests from './screens/Guests'
+import Music from './screens/Music'
 import Party from './screens/Party'
 import Home from './screens/Home'
 import Ideas from './screens/Ideas'
@@ -46,6 +47,7 @@ function AppRoutes() {
         <Route path="/guests" element={<Guests />} />
         <Route path="/ideas" element={<Ideas />} />
         <Route path="/gifts" element={<Gifts />} />
+        <Route path="/music" element={<Music />} />
         <Route path="/party" element={<Party />} />
         <Route path="/plan" element={<Plan />} />
         <Route path="/settings" element={<Settings />} />
