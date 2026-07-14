@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
-import KeyDatesSection from '../components/KeyDatesSection'
-import RunSheetSection from '../components/RunSheetSection'
+import SubscreenHeader from '../components/SubscreenHeader'
 import { useData } from '../data/DataProvider'
 import { updateRow } from '../data/api'
 import { recomputeDueDates } from '../domain/dueDates'
 
-export default function More() {
+export default function Settings() {
   const { signOut } = useAuth()
   const { settings, tasks, update, refresh } = useData()
 
@@ -14,8 +13,6 @@ export default function More() {
   const [partnerA, setPartnerA] = useState(settings.partner_a)
   const [partnerB, setPartnerB] = useState(settings.partner_b)
 
-  // Wedding-date change is a two-step: pick a date, see how many task dates it
-  // moves, then confirm. Pinned (due_override) tasks are never touched.
   const [pendingDate, setPendingDate] = useState<string | null>(null)
   const [applying, setApplying] = useState(false)
   const patches = pendingDate ? recomputeDueDates(tasks, pendingDate) : []
@@ -41,9 +38,7 @@ export default function More() {
 
   return (
     <main className="screen">
-      <header className="screen-header">
-        <h1 className="screen-title">More</h1>
-      </header>
+      <SubscreenHeader title="Settings" />
 
       <section className="card">
         <h2 className="card-title">Wedding</h2>
@@ -102,10 +97,6 @@ export default function More() {
           </div>
         </div>
       </section>
-
-      <KeyDatesSection />
-
-      <RunSheetSection />
 
       <button className="btn danger block" onClick={() => void signOut()}>
         Sign out

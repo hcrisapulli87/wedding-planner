@@ -33,7 +33,7 @@ function money(n: number): string {
 const KIND_META = {
   task: { icon: '✅', to: '/checklist' },
   payment: { icon: '💰', to: '/budget' },
-  key_date: { icon: '📅', to: '/more' },
+  key_date: { icon: '📅', to: '/key-dates' },
 } as const
 
 export default function Home() {

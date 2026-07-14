@@ -7,8 +7,11 @@ import Checklist from './screens/Checklist'
 import Guests from './screens/Guests'
 import Home from './screens/Home'
 import Ideas from './screens/Ideas'
+import KeyDates from './screens/KeyDates'
 import Login from './screens/Login'
-import More from './screens/More'
+import Plan from './screens/Plan'
+import RunSheet from './screens/RunSheet'
+import Settings from './screens/Settings'
 import Vendors from './screens/Vendors'
 
 function Shell() {
@@ -40,7 +43,10 @@ function AppRoutes() {
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/guests" element={<Guests />} />
         <Route path="/ideas" element={<Ideas />} />
-        <Route path="/more" element={<More />} />
+        <Route path="/plan" element={<Plan />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/key-dates" element={<KeyDates />} />
+        <Route path="/run-sheet" element={<RunSheet />} />
       </Route>
     </Routes>
   )
