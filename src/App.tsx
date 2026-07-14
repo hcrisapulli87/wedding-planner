@@ -5,6 +5,7 @@ import { DataProvider } from './data/DataProvider'
 import Budget from './screens/Budget'
 import Checklist from './screens/Checklist'
 import Guests from './screens/Guests'
+import Ideas from './screens/Ideas'
 import Login from './screens/Login'
 import More from './screens/More'
 import Vendors from './screens/Vendors'
@@ -40,7 +41,7 @@ function AppRoutes() {
         <Route path="/budget" element={<Budget />} />
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/guests" element={<Guests />} />
-        <Route path="/ideas" element={<Stub name="Ideas" />} />
+        <Route path="/ideas" element={<Ideas />} />
         <Route path="/more" element={<More />} />
       </Route>
     </Routes>
