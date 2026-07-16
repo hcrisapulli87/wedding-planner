@@ -201,6 +201,8 @@ export interface PartyMember {
   outfit_status: OutfitStatus
   notes: string
   sort_order: number
+  /** Set when the member was picked from the guest list — drives the Guests badge. */
+  guest_id: string | null
 }
 
 export interface Song {
@@ -230,4 +232,15 @@ export interface PackingItem {
   packed: boolean
   who: Assignee
   sort_order: number
+}
+
+export interface EngagementItem {
+  id: string
+  kind: HoneymoonKind
+  title: string
+  start_date: string | null
+  end_date: string | null
+  location: string
+  cost: number | null
+  notes: string
 }

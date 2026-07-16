@@ -25,6 +25,7 @@ const REALTIME_TABLES = [
   'wedding_songs',
   'wedding_honeymoon_items',
   'wedding_packing_items',
+  'wedding_engagement_items',
 ]
 
 export function DataProvider({ children }: { children: ReactNode }) {

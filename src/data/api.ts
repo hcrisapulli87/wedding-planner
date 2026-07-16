@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import type {
   BudgetItem,
   DayEvent,
+  EngagementItem,
   Gift,
   Guest,
   HoneymoonItem,
@@ -66,6 +67,7 @@ export interface AllData {
   songs: Song[]
   honeymoonItems: HoneymoonItem[]
   packingItems: PackingItem[]
+  engagementItems: EngagementItem[]
 }
 
 async function fetchSettings(): Promise<WeddingSettings> {
@@ -75,7 +77,7 @@ async function fetchSettings(): Promise<WeddingSettings> {
 }
 
 export async function fetchAll(): Promise<AllData> {
-  const [settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles, gifts, partyMembers, songs, honeymoonItems, packingItems] =
+  const [settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles, gifts, partyMembers, songs, honeymoonItems, packingItems, engagementItems] =
     await Promise.all([
       fetchSettings(),
       list<WeddingTask>('wedding_tasks', 'sort_order'),
@@ -93,6 +95,7 @@ export async function fetchAll(): Promise<AllData> {
       list<Song>('wedding_songs', 'sort_order'),
       list<HoneymoonItem>('wedding_honeymoon_items', 'title'),
       list<PackingItem>('wedding_packing_items', 'sort_order'),
+      list<EngagementItem>('wedding_engagement_items', 'title'),
     ])
-  return { settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles, gifts, partyMembers, songs, honeymoonItems, packingItems }
+  return { settings, tasks, budgetItems, payments, vendors, guests, tables, ideas, keyDates, dayEvents, profiles, gifts, partyMembers, songs, honeymoonItems, packingItems, engagementItems }
 }

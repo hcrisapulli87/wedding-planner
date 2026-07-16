@@ -177,6 +177,23 @@ create table if not exists public.wedding_packing_items (
   sort_order integer not null default 0
 );
 
+-- Engagement party itinerary — mirrors the honeymoon planner shape.
+create table if not exists public.wedding_engagement_items (
+  id               uuid primary key default gen_random_uuid(),
+  kind             text not null default 'booking' check (kind in ('booking','activity')),
+  title            text not null,
+  start_date       date,
+  end_date         date,
+  location         text not null default '',
+  cost             numeric(12,2),
+  notes            text not null default ''
+);
+
+-- ── v2 additive changes ───────────────────────────────────────────────────────
+-- Wedding party members picked from the guest list keep a link back to the
+-- guest row — the Guests page derives a "wedding party" badge from it.
+alter table public.wedding_party_members add column if not exists guest_id uuid references public.wedding_guests (id) on delete set null;
+
 create index if not exists wedding_tasks_due_idx     on public.wedding_tasks (due_date);
 create index if not exists wedding_guests_table_idx  on public.wedding_guests (table_id);
 create index if not exists wedding_payments_item_idx on public.wedding_payments (budget_item_id);
@@ -190,7 +207,7 @@ insert into public.wedding_settings (id) values (1) on conflict (id) do nothing;
 do $$
 declare t text;
 begin
-  foreach t in array array['wedding_settings','wedding_tasks','wedding_budget_items','wedding_payments','wedding_vendors','wedding_guests','wedding_tables','wedding_ideas','wedding_key_dates','wedding_day_events','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items'] loop
+  foreach t in array array['wedding_settings','wedding_tasks','wedding_budget_items','wedding_payments','wedding_vendors','wedding_guests','wedding_tables','wedding_ideas','wedding_key_dates','wedding_day_events','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items','wedding_engagement_items'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "%s: read all (authenticated)" on public.%I', t, t);
     execute format('create policy "%s: read all (authenticated)" on public.%I for select to authenticated using (true)', t, t);
@@ -204,7 +221,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['wedding_tasks','wedding_guests','wedding_budget_items','wedding_payments','wedding_vendors','wedding_settings','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items'] loop
+  foreach t in array array['wedding_tasks','wedding_guests','wedding_budget_items','wedding_payments','wedding_vendors','wedding_settings','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items','wedding_engagement_items'] loop
     if not exists (
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t

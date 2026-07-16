@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import HouseholdSheet from '../components/HouseholdSheet'
+import { ROLE_LABEL } from '../components/PartySheet'
 import SeatingTab from '../components/SeatingTab'
 import { useData } from '../data/DataProvider'
 import {
@@ -19,7 +20,7 @@ const STATUS_PILL: Record<InviteStatus, { label: string; cls: string }> = {
 }
 
 export default function Guests() {
-  const { settings, guests, vendors, update } = useData()
+  const { settings, guests, vendors, partyMembers, update } = useData()
   const [tab, setTab] = useState<'guests' | 'seating'>('guests')
   const [sheetGuest, setSheetGuest] = useState<Guest | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -31,6 +32,9 @@ export default function Guests() {
   const warning = capacityWarning(tally.confirmed, venue?.capacity ?? null)
   const diets = dietarySummary(guests)
   const meals = mealSummary(guests)
+
+  // Derived, never stored: a guest linked from the wedding party wears the role badge.
+  const partyRole = new Map(partyMembers.filter((m) => m.guest_id).map((m) => [m.guest_id as string, m.role]))
 
   // Pill tap: to_invite → invited; invited → mini yes/no row; yes/no → back to invited.
   const cyclePill = (g: Guest) => {
@@ -136,6 +140,7 @@ export default function Guests() {
                   <button className="grow" onClick={() => openGuest(g)} style={{ all: 'unset', flex: 1, minWidth: 0, cursor: 'pointer' }}>
                     <div className="row-title">{g.name}</div>
                     <div className="row-sub">
+                      {partyRole.has(g.id) && <span className="badge">💐 {ROLE_LABEL[partyRole.get(g.id)!]}</span>}
                       {g.is_child && <span className="badge">child</span>}
                       {g.is_plus_one && <span className="badge">+1</span>}
                       {g.dietary && <span className="badge">{g.dietary}</span>}

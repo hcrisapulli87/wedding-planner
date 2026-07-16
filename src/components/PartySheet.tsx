@@ -21,8 +21,10 @@ export const OUTFIT_LABEL: Record<OutfitStatus, string> = {
 }
 
 export default function PartySheet({ member, onClose }: { member: PartyMember | null; onClose: () => void }) {
-  const { settings, partyMembers, insert, update, remove } = useData()
+  const { settings, guests, partyMembers, insert, update, remove } = useData()
 
+  const [source, setSource] = useState<'guest' | 'manual'>(member?.guest_id ? 'guest' : 'manual')
+  const [guestId, setGuestId] = useState(member?.guest_id ?? '')
   const [name, setName] = useState(member?.name ?? '')
   const [side, setSide] = useState<'a' | 'b'>(member?.side ?? 'a')
   const [role, setRole] = useState<PartyRole>(member?.role ?? 'other')
@@ -30,9 +32,29 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
   const [outfit, setOutfit] = useState<OutfitStatus>(member?.outfit_status ?? 'todo')
   const [notes, setNotes] = useState(member?.notes ?? '')
 
+  // Guests already in the party can't be added twice (the one being edited stays pickable).
+  const takenGuestIds = new Set(partyMembers.filter((m) => m.guest_id && m.id !== member?.id).map((m) => m.guest_id))
+  const pickable = [...guests].filter((g) => !takenGuestIds.has(g.id)).sort((a, b) => a.name.localeCompare(b.name))
+
+  const pickGuest = (id: string) => {
+    setGuestId(id)
+    const g = guests.find((x) => x.id === id)
+    if (!g) return
+    setName(g.name)
+    if (g.side === 'a' || g.side === 'b') setSide(g.side)
+  }
+
   const save = async () => {
     if (!name.trim()) return
-    const fields = { name: name.trim(), side, role, phone, outfit_status: outfit, notes }
+    const fields = {
+      name: name.trim(),
+      side,
+      role,
+      phone,
+      outfit_status: outfit,
+      notes,
+      guest_id: source === 'guest' && guestId ? guestId : null,
+    }
     if (member) await update('wedding_party_members', member.id, fields)
     else
       await insert('wedding_party_members', {
@@ -53,9 +75,37 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
       <div className="sheet-backdrop" onClick={onClose} />
       <div className="sheet">
         <h3>{member ? 'Edit member' : 'Add member'}</h3>
+        <div className="segmented">
+          <button className={source === 'guest' ? 'active' : ''} onClick={() => setSource('guest')}>
+            From guest list
+          </button>
+          <button
+            className={source === 'manual' ? 'active' : ''}
+            onClick={() => {
+              setSource('manual')
+              setGuestId('')
+            }}
+          >
+            Manual
+          </button>
+        </div>
+        {source === 'guest' && (
+          <div className="field">
+            <label htmlFor="p-guest">Guest</label>
+            <select id="p-guest" value={guestId} onChange={(e) => pickGuest(e.target.value)}>
+              <option value="">Pick a guest…</option>
+              {pickable.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                  {g.household ? ` (${g.household})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="field">
           <label htmlFor="p-name">Name</label>
-          <input id="p-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+          <input id="p-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus={source === 'manual'} />
         </div>
         <div className="field-grid">
           <div className="field">
