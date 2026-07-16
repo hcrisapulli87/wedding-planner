@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
-import { giftsLine, honeymoonLine, ideasLine, musicLine, partyLine, vendorsLine } from '../domain/planCounts'
+import { engagementLine, giftsLine, honeymoonLine, ideasLine, musicLine, partyLine, vendorsLine } from '../domain/planCounts'
 
 const LIST_LINKS = [
   { to: '/key-dates', icon: '📅', label: 'Key dates' },
@@ -10,12 +10,13 @@ const LIST_LINKS = [
 ]
 
 export default function Plan() {
-  const { vendors, ideas, partyMembers, gifts, songs, honeymoonItems } = useData()
+  const { vendors, ideas, partyMembers, gifts, songs, honeymoonItems, engagementItems } = useData()
 
   const tiles = [
     { to: '/vendors', icon: '🤝', label: 'Vendors', line: vendorsLine(vendors) },
     { to: '/ideas', icon: '💡', label: 'Ideas', line: ideasLine(ideas) },
     { to: '/party', icon: '👗', label: 'Wedding party', line: partyLine(partyMembers) },
+    { to: '/engagement', icon: '🥂', label: 'Engagement party', line: engagementLine(engagementItems) },
     { to: '/gifts', icon: '🎁', label: 'Gifts', line: giftsLine(gifts) },
     { to: '/music', icon: '🎵', label: 'Music', line: musicLine(songs) },
     { to: '/honeymoon', icon: '🏝️', label: 'Honeymoon', line: honeymoonLine(honeymoonItems) },

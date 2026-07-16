@@ -1,4 +1,4 @@
-import type { Gift, HoneymoonItem, Idea, PartyMember, Song, Vendor } from '../data/types'
+import type { EngagementItem, Gift, HoneymoonItem, Idea, PartyMember, Song, Vendor } from '../data/types'
 
 export function vendorsLine(vendors: Vendor[]): string {
   if (vendors.length === 0) return 'Shortlist + book'
@@ -30,6 +30,12 @@ export function musicLine(songs: Song[]): string {
 
 export function honeymoonLine(items: HoneymoonItem[]): string {
   if (items.length === 0) return 'Start planning'
+  const bookings = items.filter((i) => i.kind === 'booking').length
+  return `${bookings} booking${bookings === 1 ? '' : 's'}`
+}
+
+export function engagementLine(items: EngagementItem[]): string {
+  if (items.length === 0) return 'Plan the party'
   const bookings = items.filter((i) => i.kind === 'booking').length
   return `${bookings} booking${bookings === 1 ? '' : 's'}`
 }

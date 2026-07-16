@@ -9,6 +9,7 @@ import Exports from './screens/Exports'
 import GuestListPrint from './screens/exports/GuestListPrint'
 import MusicPrint from './screens/exports/MusicPrint'
 import SeatingPrint from './screens/exports/SeatingPrint'
+import Engagement from './screens/Engagement'
 import Gifts from './screens/Gifts'
 import Guests from './screens/Guests'
 import Honeymoon from './screens/Honeymoon'
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="/ideas" element={<Ideas />} />
         <Route path="/gifts" element={<Gifts />} />
         <Route path="/honeymoon" element={<Honeymoon />} />
+        <Route path="/engagement" element={<Engagement />} />
         <Route path="/music" element={<Music />} />
         <Route path="/party" element={<Party />} />
         <Route path="/plan" element={<Plan />} />
