@@ -26,7 +26,12 @@ export default function Login() {
 
   return (
     <main className="login">
-      <div className="rings">💍</div>
+      <div className="rings">
+        <svg width="26" height="26" viewBox="0 0 26 26">
+          <circle cx="9" cy="13" r="7" fill="none" stroke="var(--gold)" strokeWidth="2" />
+          <circle cx="17" cy="13" r="7" fill="none" stroke="var(--gold)" strokeWidth="2" />
+        </svg>
+      </div>
       <h1 className="wordmark">Everafter</h1>
       <hr className="rule-ornament" />
       <p className="text-dim">Our wedding, planned together.</p>
