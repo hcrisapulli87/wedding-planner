@@ -2,7 +2,7 @@ import SubscreenHeader from '../../components/SubscreenHeader'
 import { useData } from '../../data/DataProvider'
 import { groupByHousehold } from '../../domain/guestRollups'
 
-const STATUS_LABEL = { to_invite: 'To invite', invited: 'Invited', rsvp_yes: 'Yes', rsvp_no: 'No' } as const
+const STATUS_LABEL = { to_invite: 'To invite', maybe: 'Maybe', invited: 'Invited', rsvp_yes: 'Yes', rsvp_no: 'No' } as const
 
 export default function GuestListPrint() {
   const { guests } = useData()

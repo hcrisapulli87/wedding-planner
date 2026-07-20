@@ -14,6 +14,7 @@ import type { Guest, InviteStatus } from '../data/types'
 
 const STATUS_PILL: Record<InviteStatus, { label: string; cls: string }> = {
   to_invite: { label: 'To invite', cls: '' },
+  maybe: { label: 'Maybe', cls: 'gold' },
   invited: { label: 'Invited', cls: 'amber' },
   rsvp_yes: { label: 'Yes', cls: 'green' },
   rsvp_no: { label: 'No', cls: 'red' },
@@ -36,9 +37,10 @@ export default function Guests() {
   // Derived, never stored: a guest linked from the wedding party wears the role badge.
   const partyRole = new Map(partyMembers.filter((m) => m.guest_id).map((m) => [m.guest_id as string, m.role]))
 
-  // Pill tap: to_invite → invited; invited → mini yes/no row; yes/no → back to invited.
+  // Pill tap: to_invite → maybe → invited → mini yes/no row; yes/no → back to invited.
   const cyclePill = (g: Guest) => {
-    if (g.invite_status === 'to_invite') void update('wedding_guests', g.id, { invite_status: 'invited' })
+    if (g.invite_status === 'to_invite') void update('wedding_guests', g.id, { invite_status: 'maybe' })
+    else if (g.invite_status === 'maybe') void update('wedding_guests', g.id, { invite_status: 'invited' })
     else if (g.invite_status === 'invited') setRsvpFor(rsvpFor === g.id ? null : g.id)
     else void update('wedding_guests', g.id, { invite_status: 'invited' })
   }
@@ -71,6 +73,10 @@ export default function Guests() {
             <div className="stat">
               <div className="num">{tally.toInvite}</div>
               <div className="lbl">To invite</div>
+            </div>
+            <div className="stat">
+              <div className="num">{tally.maybe}</div>
+              <div className="lbl">Maybe</div>
             </div>
             <div className="stat">
               <div className="num">{tally.awaiting}</div>

@@ -31,6 +31,7 @@ describe('rsvpTally', () => {
   it('tallies statuses and splits confirmed adults/kids', () => {
     const guests = [
       guest({ invite_status: 'to_invite' }),
+      guest({ invite_status: 'maybe' }),
       guest({ invite_status: 'invited' }),
       guest({ invite_status: 'invited' }),
       guest({ invite_status: 'rsvp_yes' }),
@@ -39,6 +40,7 @@ describe('rsvpTally', () => {
     ]
     expect(rsvpTally(guests)).toEqual({
       toInvite: 1,
+      maybe: 1,
       awaiting: 2,
       confirmed: 2,
       declined: 1,

@@ -141,6 +141,7 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
               <label htmlFor="g-status">Invite status</label>
               <select id="g-status" value={inviteStatus} onChange={(e) => setInviteStatus(e.target.value as InviteStatus)}>
                 <option value="to_invite">To invite</option>
+                <option value="maybe">Maybe</option>
                 <option value="invited">Invited</option>
                 <option value="rsvp_yes">RSVP yes</option>
                 <option value="rsvp_no">RSVP no</option>

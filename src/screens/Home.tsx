@@ -127,6 +127,7 @@ export default function Home() {
           <div className="row" style={{ border: 0, padding: 0, flexWrap: 'wrap' }}>
             <span className="pill green">{tally.confirmed} confirmed</span>
             <span className="pill amber">{tally.awaiting} awaiting</span>
+            {tally.maybe > 0 && <span className="pill gold">{tally.maybe} maybe</span>}
             <span className="pill red">{tally.declined} declined</span>
             {tally.confirmed > 0 && (
               <span className="row-sub">
