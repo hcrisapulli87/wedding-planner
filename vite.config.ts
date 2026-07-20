@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'Everafter',
         short_name: 'Everafter',
         description: 'Our wedding, planned together.',
-        theme_color: '#171420',
-        background_color: '#171420',
+        theme_color: '#15161e',
+        background_color: '#15161e',
         display: 'standalone',
         start_url: '/',
         icons: [
