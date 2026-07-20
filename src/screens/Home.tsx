@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { Settings as SettingsIcon } from 'lucide-react'
 import { useData } from '../data/DataProvider'
 import { rollup } from '../domain/budgetMath'
 import { dueSoonFeed } from '../domain/dueSoon'
@@ -31,9 +32,9 @@ function money(n: number): string {
 }
 
 const KIND_META = {
-  task: { icon: '✅', to: '/checklist' },
-  payment: { icon: '💰', to: '/budget' },
-  key_date: { icon: '📅', to: '/key-dates' },
+  task: { to: '/checklist' },
+  payment: { to: '/budget' },
+  key_date: { to: '/key-dates' },
 } as const
 
 export default function Home() {
@@ -56,7 +57,7 @@ export default function Home() {
       <header className="screen-header">
         <h1 className="wordmark">Everafter</h1>
         <Link to="/settings" className="gear" aria-label="Settings">
-          ⚙️
+          <SettingsIcon size={16} strokeWidth={2.25} />
         </Link>
       </header>
 
@@ -89,10 +90,18 @@ export default function Home() {
             <button
               key={`${entry.kind}-${entry.id}`}
               className="row"
-              style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line)' }}
+              style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '11px 0', borderBottom: '1px solid rgba(255,255,255,.08)' }}
               onClick={() => navigate(KIND_META[entry.kind].to)}
             >
-              <span>{KIND_META[entry.kind].icon}</span>
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 9999,
+                  flexShrink: 0,
+                  background: entry.overdue ? 'var(--red-strong)' : 'var(--gold)',
+                }}
+              />
               <div className="grow">
                 <div className={`row-title${entry.overdue ? ' text-red' : ''}`}>{entry.title}</div>
                 <div className={`row-sub${entry.overdue ? ' text-red' : ''}`}>
