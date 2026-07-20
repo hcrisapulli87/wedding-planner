@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
+import ConfirmSheet from '../components/ConfirmSheet'
 import SubscreenHeader from '../components/SubscreenHeader'
 import { useData } from '../data/DataProvider'
 import { updateRow } from '../data/api'
@@ -15,6 +16,7 @@ export default function Settings() {
 
   const [pendingDate, setPendingDate] = useState<string | null>(null)
   const [applying, setApplying] = useState(false)
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
   const patches = pendingDate ? recomputeDueDates(tasks, pendingDate) : []
 
   const applyDate = async () => {
@@ -98,9 +100,19 @@ export default function Settings() {
         </div>
       </section>
 
-      <button className="btn danger block" onClick={() => void signOut()}>
+      <button className="btn danger block" onClick={() => setConfirmingSignOut(true)}>
         Sign out
       </button>
+
+      {confirmingSignOut && (
+        <ConfirmSheet
+          title="Sign out?"
+          message="You'll need to sign back in to see your wedding plan."
+          confirmLabel="Sign out"
+          onCancel={() => setConfirmingSignOut(false)}
+          onConfirm={() => void signOut()}
+        />
+      )}
     </main>
   )
 }
