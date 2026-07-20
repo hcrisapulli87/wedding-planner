@@ -81,7 +81,7 @@ function IdeaCard({ idea, onOpen }: { idea: Idea; onOpen: () => void }) {
   }, [idea.image_path])
 
   return (
-    <button className="idea-card" onClick={onOpen} style={{ border: '1px solid var(--line)', font: 'inherit', color: 'inherit', textAlign: 'left', padding: 0 }}>
+    <button className="idea-card" onClick={onOpen} style={{ font: 'inherit', color: 'inherit', textAlign: 'left', padding: 0 }}>
       {imgUrl ? (
         <img src={imgUrl} alt={idea.title || 'Inspiration'} loading="lazy" />
       ) : (

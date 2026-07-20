@@ -26,7 +26,7 @@ export default function Party() {
       <SubscreenHeader title="Wedding party" />
 
       {partyMembers.length > 0 && (
-        <div className="banner" style={{ borderColor: 'var(--line)', color: 'var(--text-dim)', background: 'var(--bg-raised)' }}>
+        <div className="banner" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-dim)', background: 'var(--glass-bg-soft)' }}>
           {progress.ready} of {progress.total} outfits ready
         </div>
       )}
@@ -42,7 +42,7 @@ export default function Party() {
               <button
                 key={m.id}
                 className="row"
-                style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--bg-sunken)' }}
+                style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
                 onClick={() => setEditing(m)}
               >
                 <div className="grow">

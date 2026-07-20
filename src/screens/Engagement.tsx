@@ -47,7 +47,7 @@ export default function Engagement() {
       <SubscreenHeader title="Engagement party" />
 
       {total > 0 && (
-        <div className="banner" style={{ borderColor: 'var(--line)', color: 'var(--text-dim)', background: 'var(--bg-raised)' }}>
+        <div className="banner" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-dim)', background: 'var(--glass-bg-soft)' }}>
           {money(total)} planned · {bookedCount} of {items.length} booked
         </div>
       )}
@@ -66,7 +66,7 @@ export default function Engagement() {
           <button
             key={i.id}
             className="row"
-            style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--bg-sunken)' }}
+            style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
             onClick={() => setEditing(i)}
           >
             <span>{CATEGORY_ICON[i.category]}</span>

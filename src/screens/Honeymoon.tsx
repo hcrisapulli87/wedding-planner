@@ -56,7 +56,7 @@ export default function Honeymoon() {
             <button
               key={i.id}
               className="row"
-              style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--bg-sunken)' }}
+              style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
               onClick={() => setEditing(i)}
             >
               <span>{i.kind === 'booking' ? '🎫' : '🌊'}</span>
@@ -94,7 +94,7 @@ export default function Honeymoon() {
               placeholder="Add packing item…"
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
-              style={{ flex: 1, background: 'var(--bg-sunken)', border: '1px solid var(--line)', borderRadius: 10, color: 'var(--text)', padding: '9px 12px', fontSize: '0.9rem' }}
+              style={{ flex: 1, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--glass-border-soft)', borderRadius: 10, color: 'var(--text)', padding: '9px 12px', fontSize: '0.9rem' }}
             />
             <button className="btn small" type="submit" disabled={!newItem.trim()}>
               Add

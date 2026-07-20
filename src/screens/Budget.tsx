@@ -79,7 +79,7 @@ export default function Budget() {
                   <button
                     key={i.id}
                     className="row"
-                    style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line)' }}
+                    style={{ all: 'unset', display: 'flex', width: '100%', cursor: 'pointer', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
                     onClick={() => openItem(i)}
                   >
                     <div className="grow">
