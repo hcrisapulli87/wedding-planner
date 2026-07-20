@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { Home as HomeIcon, ListChecks, DollarSign, Users, LayoutGrid } from 'lucide-react'
 
 const TABS = [
-  { to: '/', label: 'Home', icon: '🕊️' },
-  { to: '/checklist', label: 'Checklist', icon: '✅' },
-  { to: '/budget', label: 'Budget', icon: '💰' },
-  { to: '/guests', label: 'Guests', icon: '🪑' },
-  { to: '/plan', label: 'Plan', icon: '❦' },
+  { to: '/', label: 'Home', Icon: HomeIcon },
+  { to: '/checklist', label: 'Checklist', Icon: ListChecks },
+  { to: '/budget', label: 'Budget', Icon: DollarSign },
+  { to: '/guests', label: 'Guests', Icon: Users },
+  { to: '/plan', label: 'Plan', Icon: LayoutGrid },
 ]
 
 export default function Layout() {
@@ -13,10 +14,12 @@ export default function Layout() {
     <>
       <Outlet />
       <nav className="tabbar">
-        {TABS.map((t) => (
-          <NavLink key={t.to} to={t.to} end={t.to === '/'}>
-            <span className="tab-icon">{t.icon}</span>
-            {t.label}
+        {TABS.map(({ to, label, Icon }) => (
+          <NavLink key={to} to={to} end={to === '/'}>
+            <span className="tab-icon">
+              <Icon size={16} strokeWidth={2.25} />
+            </span>
+            {label}
           </NavLink>
         ))}
       </nav>
