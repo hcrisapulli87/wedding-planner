@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { deleteIdeaImage, uploadIdeaImage } from '../data/ideaImages'
 import type { Idea, IdeaArea } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 export const IDEA_AREA_LABELS: Record<IdeaArea, string> = {
   dress: 'Dress',
@@ -31,6 +32,7 @@ export default function IdeaSheet({ idea, defaultArea, onClose }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const hasContent = title.trim() || url.trim() || file || idea?.image_path
 
@@ -104,7 +106,7 @@ export default function IdeaSheet({ idea, defaultArea, onClose }: Props) {
         {error && <p className="error">{error}</p>}
         <div className="sheet-actions">
           {idea && (
-            <button className="btn danger" onClick={() => void del()} disabled={saving}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={saving}>
               Delete
             </button>
           )}
@@ -116,6 +118,15 @@ export default function IdeaSheet({ idea, defaultArea, onClose }: Props) {
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this idea?"
+          message="This can't be undone."
+          busy={saving}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

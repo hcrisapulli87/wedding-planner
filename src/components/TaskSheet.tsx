@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { dueDateFor } from '../domain/dueDates'
 import type { Assignee, TaskStatus, WeddingTask } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 interface Props {
   task: WeddingTask | null // null = new task
@@ -19,6 +20,7 @@ export default function TaskSheet({ task, onClose }: Props) {
   // Editing the date pins the task to it; "re-link" recomputes from the timeline.
   const [dueOverride, setDueOverride] = useState(task?.due_override ?? false)
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const canRelink = task !== null && task.months_out !== null && dueOverride
 
@@ -114,7 +116,7 @@ export default function TaskSheet({ task, onClose }: Props) {
         </div>
         <div className="sheet-actions">
           {task && (
-            <button className="btn danger" onClick={() => void del()} disabled={saving}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={saving}>
               Delete
             </button>
           )}
@@ -126,6 +128,15 @@ export default function TaskSheet({ task, onClose }: Props) {
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this task?"
+          message="This can't be undone."
+          busy={saving}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

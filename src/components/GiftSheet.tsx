@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { Gift, GiftKind } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 function todayIso(): string {
   const t = new Date()
@@ -19,6 +20,7 @@ export default function GiftSheet({ gift, onClose }: { gift: Gift | null; onClos
   const [thanked, setThanked] = useState(gift?.thank_you_sent ?? false)
   const [notes, setNotes] = useState(gift?.notes ?? '')
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const households = [...new Set(guests.map((g) => g.household.trim()).filter(Boolean))].sort()
 
@@ -97,7 +99,7 @@ export default function GiftSheet({ gift, onClose }: { gift: Gift | null; onClos
         </div>
         <div className="sheet-actions">
           {gift && (
-            <button className="btn danger" onClick={() => void del()}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
               Delete
             </button>
           )}
@@ -109,6 +111,15 @@ export default function GiftSheet({ gift, onClose }: { gift: Gift | null; onClos
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this gift?"
+          message="This can't be undone."
+          busy={saving}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

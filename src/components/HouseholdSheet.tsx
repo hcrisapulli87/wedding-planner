@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { Assignee, Guest, InviteStatus } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 // Two modes: a new *household* (name + address + several members in one save)
 // or editing a single existing guest (all fields incl. meal/dietary/thank-you).
@@ -25,6 +26,7 @@ interface Props {
 export default function HouseholdSheet({ guest, onClose }: Props) {
   const { settings, insert, update, remove } = useData()
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   // New-household state
   const [household, setHousehold] = useState('')
@@ -163,7 +165,7 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
             <input type="checkbox" checked={isPlusOne} onChange={(e) => setIsPlusOne(e.target.checked)} /> Plus-one
           </label>
           <div className="sheet-actions">
-            <button className="btn danger" onClick={() => void del()} disabled={saving}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={saving}>
               Delete
             </button>
             <button className="btn" onClick={onClose} disabled={saving}>
@@ -174,6 +176,15 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
             </button>
           </div>
         </div>
+        {confirmingDelete && (
+          <ConfirmSheet
+            title="Delete this guest?"
+            message="This can't be undone."
+            busy={saving}
+            onCancel={() => setConfirmingDelete(false)}
+            onConfirm={() => void del()}
+          />
+        )}
       </>
     )
   }

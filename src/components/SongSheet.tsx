@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { Song, SongList } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 export const MOMENT_OPTIONS = ['Aisle', 'Entrance', 'First dance', 'Cake cut', 'Bouquet toss', 'Last song', 'Other']
 
@@ -12,6 +13,7 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
   const [title, setTitle] = useState(song?.title ?? '')
   const [artist, setArtist] = useState(song?.artist ?? '')
   const [notes, setNotes] = useState(song?.notes ?? '')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const save = async () => {
     if (!title.trim()) return
@@ -74,7 +76,7 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
         </div>
         <div className="sheet-actions">
           {song && (
-            <button className="btn danger" onClick={() => void del()}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
               Delete
             </button>
           )}
@@ -86,6 +88,14 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this song?"
+          message="This can't be undone."
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

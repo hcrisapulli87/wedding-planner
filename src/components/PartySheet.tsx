@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { OutfitStatus, PartyMember, PartyRole } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 export const ROLE_LABEL: Record<PartyRole, string> = {
   maid_of_honour: 'Maid of honour',
@@ -31,6 +32,7 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
   const [phone, setPhone] = useState(member?.phone ?? '')
   const [outfit, setOutfit] = useState<OutfitStatus>(member?.outfit_status ?? 'todo')
   const [notes, setNotes] = useState(member?.notes ?? '')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   // Guests already in the party can't be added twice (the one being edited stays pickable).
   const takenGuestIds = new Set(partyMembers.filter((m) => m.guest_id && m.id !== member?.id).map((m) => m.guest_id))
@@ -145,7 +147,7 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
         </div>
         <div className="sheet-actions">
           {member && (
-            <button className="btn danger" onClick={() => void del()}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
               Delete
             </button>
           )}
@@ -157,6 +159,14 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this wedding party member?"
+          message="This can't be undone."
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

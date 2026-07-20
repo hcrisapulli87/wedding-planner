@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { CATEGORY_LABELS } from '../domain/budgetMath'
 import type { BudgetCategory, BudgetItem } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 interface Props {
   item: BudgetItem | null // null = new item
@@ -28,6 +29,7 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
   const [quoted, setQuoted] = useState(item?.quoted?.toString() ?? '')
   const [actual, setActual] = useState(item?.actual?.toString() ?? '')
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   // Add-payment row state
   const [payLabel, setPayLabel] = useState('deposit')
@@ -182,7 +184,7 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
 
         <div className="sheet-actions">
           {item && (
-            <button className="btn danger" onClick={() => void del()} disabled={saving}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={saving}>
               Delete
             </button>
           )}
@@ -194,6 +196,15 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this budget item?"
+          message="This can't be undone."
+          busy={saving}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

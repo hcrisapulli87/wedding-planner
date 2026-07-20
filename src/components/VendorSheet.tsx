@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { bookingCascade } from '../domain/vendorBooking'
 import type { BudgetItem, Vendor, VendorStatus, VendorType } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 export const VENDOR_TYPE_LABELS: Record<VendorType, string> = {
   venue: 'Venue',
@@ -59,6 +60,7 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
   const [links, setLinks] = useState((vendor?.links ?? []).join('\n'))
   const [notes, setNotes] = useState(vendor?.notes ?? '')
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   // Book-vendor confirm step (one action → three records, each untickable)
   const [confirming, setConfirming] = useState(false)
@@ -305,7 +307,7 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
         </div>
         <div className="sheet-actions">
           {vendor && (
-            <button className="btn danger" onClick={() => void del()} disabled={saving}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={saving}>
               Delete
             </button>
           )}
@@ -317,6 +319,15 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this vendor?"
+          message="This can't be undone."
+          busy={saving}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

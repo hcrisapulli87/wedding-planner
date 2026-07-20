@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { HoneymoonItem, HoneymoonKind } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem | null; onClose: () => void }) {
   const { insert, update, remove } = useData()
@@ -12,6 +13,7 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
   const [ref, setRef] = useState(item?.confirmation_ref ?? '')
   const [cost, setCost] = useState(item?.cost?.toString() ?? '')
   const [notes, setNotes] = useState(item?.notes ?? '')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const save = async () => {
     if (!title.trim()) return
@@ -78,7 +80,7 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
         </div>
         <div className="sheet-actions">
           {item && (
-            <button className="btn danger" onClick={() => void del()}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
               Delete
             </button>
           )}
@@ -90,6 +92,14 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this honeymoon item?"
+          message="This can't be undone."
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }

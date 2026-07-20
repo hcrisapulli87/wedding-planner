@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { EngagementCategory, EngagementItem, EngagementStatus } from '../data/types'
+import ConfirmSheet from './ConfirmSheet'
 
 export const CATEGORY_LABEL: Record<EngagementCategory, string> = {
   venue: 'Venue',
@@ -41,6 +42,7 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
   const [location, setLocation] = useState(item?.location ?? '')
   const [cost, setCost] = useState(item?.cost?.toString() ?? '')
   const [notes, setNotes] = useState(item?.notes ?? '')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const save = async () => {
     if (!title.trim()) return
@@ -123,7 +125,7 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
         </div>
         <div className="sheet-actions">
           {item && (
-            <button className="btn danger" onClick={() => void del()}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
               Delete
             </button>
           )}
@@ -135,6 +137,14 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
           </button>
         </div>
       </div>
+      {confirmingDelete && (
+        <ConfirmSheet
+          title="Delete this engagement party item?"
+          message="This can't be undone."
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void del()}
+        />
+      )}
     </>
   )
 }
