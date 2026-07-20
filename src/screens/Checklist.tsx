@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Check } from 'lucide-react'
 import TaskSheet from '../components/TaskSheet'
 import { useData } from '../data/DataProvider'
 import { bucketLabel } from '../domain/dueDates'
@@ -137,20 +138,32 @@ function TaskRow({ task, onToggle, onOpen }: { task: WeddingTask; onToggle: () =
   const done = task.status === 'done'
   return (
     <div className={`row${done ? ' done' : ''}${task.status === 'skipped' ? ' dim' : ''}`}>
-      <input
-        type="checkbox"
-        checked={done}
-        onChange={onToggle}
-        style={{ width: 20, height: 20, accentColor: 'var(--blush-deep)' }}
+      <button
+        onClick={onToggle}
         aria-label={`Mark ${task.title} ${done ? 'not done' : 'done'}`}
-      />
+        style={{
+          all: 'unset',
+          width: 19,
+          height: 19,
+          borderRadius: 6,
+          flexShrink: 0,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: done ? 'var(--gold)' : 'transparent',
+          border: done ? 'none' : '1.5px solid rgba(242,239,233,.3)',
+        }}
+      >
+        {done && <Check size={11} strokeWidth={2.5} color="var(--ink)" />}
+      </button>
       <button className="grow" onClick={onOpen} style={{ all: 'unset', flex: 1, minWidth: 0, cursor: 'pointer' }}>
         <div className="row-title">{task.title}</div>
         <div className="row-sub">
           {task.due_date ? shortDate(task.due_date) : 'No date'}
           {task.status === 'in_progress' && ' · in progress'}
           {task.status === 'skipped' && ' · skipped'}
-          {task.due_override && ' · 📌'}
+          {task.due_override && ' · pinned'}
         </div>
       </button>
       <span className={`pill ${task.assignee === 'both' ? 'gold' : 'blush'}`}>{initials[task.assignee]}</span>
