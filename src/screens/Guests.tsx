@@ -155,10 +155,10 @@ export default function Guests() {
                   {rsvpFor === g.id && g.invite_status === 'invited' ? (
                     <span className="row" style={{ border: 0, padding: 0, gap: 4 }}>
                       <button className="pill green" onClick={() => setRsvp(g, 'rsvp_yes')}>
-                        ✓ Yes
+                        Yes
                       </button>
                       <button className="pill red" onClick={() => setRsvp(g, 'rsvp_no')}>
-                        ✗ No
+                        No
                       </button>
                     </span>
                   ) : (
