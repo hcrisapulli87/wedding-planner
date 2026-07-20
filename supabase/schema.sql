@@ -83,7 +83,7 @@ create table if not exists public.wedding_guests (
   name           text not null,
   side           text not null default 'both' check (side in ('a','b','both')),
   grp            text not null default 'friends' check (grp in ('family','friends','work','other')),
-  invite_status  text not null default 'to_invite' check (invite_status in ('to_invite','invited','rsvp_yes','rsvp_no')),
+  invite_status  text not null default 'to_invite' check (invite_status in ('to_invite','maybe','invited','rsvp_yes','rsvp_no')),
   meal_choice    text not null default '',
   dietary        text not null default '',
   is_plus_one    boolean not null default false,
@@ -181,6 +181,8 @@ create table if not exists public.wedding_packing_items (
 create table if not exists public.wedding_engagement_items (
   id               uuid primary key default gen_random_uuid(),
   kind             text not null default 'booking' check (kind in ('booking','activity')),
+  category         text not null default 'other' check (category in ('venue','catering','drinks','entertainment','decor','attire','invitations','other')),
+  status           text not null default 'todo' check (status in ('todo','quoted','booked')),
   title            text not null,
   start_date       date,
   end_date         date,
@@ -193,6 +195,19 @@ create table if not exists public.wedding_engagement_items (
 -- Wedding party members picked from the guest list keep a link back to the
 -- guest row — the Guests page derives a "wedding party" badge from it.
 alter table public.wedding_party_members add column if not exists guest_id uuid references public.wedding_guests (id) on delete set null;
+
+-- ── v3 additive changes ───────────────────────────────────────────────────────
+-- Engagement items gained planning categories + a booking-status pipeline.
+alter table public.wedding_engagement_items add column if not exists category text not null default 'other'
+  check (category in ('venue','catering','drinks','entertainment','decor','attire','invitations','other'));
+alter table public.wedding_engagement_items add column if not exists status text not null default 'todo'
+  check (status in ('todo','quoted','booked'));
+
+-- "Maybe" invitees: undecided whether they'll receive an invite at all — distinct
+-- from the invited/RSVP lifecycle.
+alter table public.wedding_guests drop constraint if exists wedding_guests_invite_status_check;
+alter table public.wedding_guests add constraint wedding_guests_invite_status_check
+  check (invite_status in ('to_invite','maybe','invited','rsvp_yes','rsvp_no'));
 
 create index if not exists wedding_tasks_due_idx     on public.wedding_tasks (due_date);
 create index if not exists wedding_guests_table_idx  on public.wedding_guests (table_id);

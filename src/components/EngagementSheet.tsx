@@ -1,11 +1,40 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
-import type { EngagementItem, HoneymoonKind } from '../data/types'
+import type { EngagementCategory, EngagementItem, EngagementStatus } from '../data/types'
+
+export const CATEGORY_LABEL: Record<EngagementCategory, string> = {
+  venue: 'Venue',
+  catering: 'Catering',
+  drinks: 'Drinks',
+  entertainment: 'Entertainment',
+  decor: 'Decor',
+  attire: 'Attire',
+  invitations: 'Invitations',
+  other: 'Other',
+}
+
+export const CATEGORY_ICON: Record<EngagementCategory, string> = {
+  venue: '🏛',
+  catering: '🍽',
+  drinks: '🥂',
+  entertainment: '🎶',
+  decor: '💐',
+  attire: '👗',
+  invitations: '💌',
+  other: '📌',
+}
+
+export const STATUS_LABEL: Record<EngagementStatus, string> = {
+  todo: 'To do',
+  quoted: 'Quoted',
+  booked: 'Booked',
+}
 
 export default function EngagementSheet({ item, onClose }: { item: EngagementItem | null; onClose: () => void }) {
   const { insert, update, remove } = useData()
 
-  const [kind, setKind] = useState<HoneymoonKind>(item?.kind ?? 'booking')
+  const [category, setCategory] = useState<EngagementCategory>(item?.category ?? 'other')
+  const [status, setStatus] = useState<EngagementStatus>(item?.status ?? 'todo')
   const [title, setTitle] = useState(item?.title ?? '')
   const [startDate, setStartDate] = useState(item?.start_date ?? '')
   const [endDate, setEndDate] = useState(item?.end_date ?? '')
@@ -17,7 +46,8 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
     if (!title.trim()) return
     const costValue = cost.trim() === '' ? null : Number(cost)
     const fields = {
-      kind,
+      category,
+      status,
       title: title.trim(),
       start_date: startDate || null,
       end_date: endDate || null,
@@ -43,24 +73,39 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
         <h3>{item ? 'Edit item' : 'Add item'}</h3>
         <div className="field-grid">
           <div className="field">
-            <label htmlFor="e-kind">Type</label>
-            <select id="e-kind" value={kind} onChange={(e) => setKind(e.target.value as HoneymoonKind)}>
-              <option value="booking">Booking</option>
-              <option value="activity">Activity</option>
+            <label htmlFor="e-category">Category</label>
+            <select id="e-category" value={category} onChange={(e) => setCategory(e.target.value as EngagementCategory)}>
+              {Object.entries(CATEGORY_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
           <div className="field">
-            <label htmlFor="e-cost">Cost ($)</label>
-            <input id="e-cost" type="number" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} />
+            <label htmlFor="e-status">Status</label>
+            <select id="e-status" value={status} onChange={(e) => setStatus(e.target.value as EngagementStatus)}>
+              {Object.entries(STATUS_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="field">
           <label htmlFor="e-title">What</label>
           <input id="e-title" placeholder="e.g. Venue hire, celebrant, photo booth" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
         </div>
-        <div className="field">
-          <label htmlFor="e-location">Where</label>
-          <input id="e-location" placeholder="Venue / address" value={location} onChange={(e) => setLocation(e.target.value)} />
+        <div className="field-grid">
+          <div className="field">
+            <label htmlFor="e-location">Where</label>
+            <input id="e-location" placeholder="Venue / address" value={location} onChange={(e) => setLocation(e.target.value)} />
+          </div>
+          <div className="field">
+            <label htmlFor="e-cost">Cost ($)</label>
+            <input id="e-cost" type="number" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} />
+          </div>
         </div>
         <div className="field-grid">
           <div className="field">

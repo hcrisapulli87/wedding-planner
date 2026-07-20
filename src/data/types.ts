@@ -17,7 +17,7 @@ export type VendorType =
   | 'stationery'
   | 'other'
 export type VendorStatus = 'idea' | 'contacted' | 'quoted' | 'visited' | 'booked' | 'rejected'
-export type InviteStatus = 'to_invite' | 'invited' | 'rsvp_yes' | 'rsvp_no'
+export type InviteStatus = 'to_invite' | 'maybe' | 'invited' | 'rsvp_yes' | 'rsvp_no'
 export type BudgetCategory =
   | 'venue'
   | 'catering_drinks'
@@ -178,6 +178,16 @@ export type PartyRole =
 export type OutfitStatus = 'todo' | 'ordered' | 'fitted' | 'ready'
 export type SongList = 'must_play' | 'do_not_play' | 'moment'
 export type HoneymoonKind = 'booking' | 'activity'
+export type EngagementCategory =
+  | 'venue'
+  | 'catering'
+  | 'drinks'
+  | 'entertainment'
+  | 'decor'
+  | 'attire'
+  | 'invitations'
+  | 'other'
+export type EngagementStatus = 'todo' | 'quoted' | 'booked'
 
 export interface Gift {
   id: string
@@ -237,6 +247,8 @@ export interface PackingItem {
 export interface EngagementItem {
   id: string
   kind: HoneymoonKind
+  category: EngagementCategory
+  status: EngagementStatus
   title: string
   start_date: string | null
   end_date: string | null
