@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import ConfirmSheet from '../components/ConfirmSheet'
 import HoneymoonSheet from '../components/HoneymoonSheet'
 import SubscreenHeader from '../components/SubscreenHeader'
 import { useData } from '../data/DataProvider'
-import type { HoneymoonItem } from '../data/types'
+import type { HoneymoonItem, PackingItem } from '../data/types'
 import { sortItinerary } from '../domain/honeymoon'
 import { shortDate } from '../lib/dates'
 import { money } from '../lib/format'
+import { useBusy } from '../lib/useBusy'
 
 export default function Honeymoon() {
   const { honeymoonItems, packingItems, insert, update, remove } = useData()
@@ -14,20 +15,27 @@ export default function Honeymoon() {
   const [editing, setEditing] = useState<HoneymoonItem | null>(null)
   const [adding, setAdding] = useState(false)
   const [newItem, setNewItem] = useState('')
+  const [packingToDelete, setPackingToDelete] = useState<PackingItem | null>(null)
+  const { busy, guard } = useBusy()
 
   const itinerary = sortItinerary(honeymoonItems)
   const packing = [...packingItems].sort((a, b) => a.sort_order - b.sort_order)
   const packed = packing.filter((p) => p.packed).length
 
-  const addPacking = async (e: FormEvent) => {
-    e.preventDefault()
+  const addPacking = guard(async () => {
     if (!newItem.trim()) return
     await insert('wedding_packing_items', {
       item: newItem.trim(),
       sort_order: (packing.at(-1)?.sort_order ?? 0) + 10,
     })
     setNewItem('')
-  }
+  })
+
+  const deletePacking = guard(async () => {
+    if (!packingToDelete) return
+    await remove('wedding_packing_items', packingToDelete.id)
+    setPackingToDelete(null)
+  })
 
   return (
     <main className="screen">
@@ -77,19 +85,26 @@ export default function Honeymoon() {
                 onChange={(e) => void update('wedding_packing_items', p.id, { packed: e.target.checked })}
               />
               <div className="grow row-title">{p.item}</div>
-              <button className="btn small" aria-label="Remove" onClick={() => void remove('wedding_packing_items', p.id)}>
+              <button className="btn small" aria-label={`Remove ${p.item}`} onClick={() => setPackingToDelete(p)}>
                 ✕
               </button>
             </div>
           ))}
-          <form onSubmit={(e) => void addPacking(e)} className="row" style={{ borderBottom: 'none' }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              void addPacking()
+            }}
+            className="row"
+            style={{ borderBottom: 'none' }}
+          >
             <input
               placeholder="Add packing item…"
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
               style={{ flex: 1, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--glass-border-soft)', borderRadius: 10, color: 'var(--text)', padding: '9px 12px', fontSize: '0.9rem' }}
             />
-            <button className="btn small" type="submit" disabled={!newItem.trim()}>
+            <button className="btn small" type="submit" disabled={busy || !newItem.trim()}>
               Add
             </button>
           </form>
@@ -109,6 +124,17 @@ export default function Honeymoon() {
             setAdding(false)
             setEditing(null)
           }}
+        />
+      )}
+
+      {packingToDelete && (
+        <ConfirmSheet
+          title={`Remove “${packingToDelete.item}”?`}
+          message="It comes off the packing list for both of you."
+          confirmLabel="Remove"
+          busy={busy}
+          onCancel={() => setPackingToDelete(null)}
+          onConfirm={() => void deletePacking()}
         />
       )}
     </main>

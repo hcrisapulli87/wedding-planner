@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { seatingSummary } from '../domain/seating'
+import { useBusy } from '../lib/useBusy'
+import ConfirmSheet from './ConfirmSheet'
 import type { SeatTable } from '../data/types'
 
 export default function SeatingTab() {
@@ -12,6 +14,8 @@ export default function SeatingTab() {
   const [addingTable, setAddingTable] = useState(false)
   const [tableName, setTableName] = useState('')
   const [tableCapacity, setTableCapacity] = useState('10')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const { busy, guard } = useBusy()
 
   const startEdit = (t: SeatTable) => {
     setEditing(t)
@@ -27,20 +31,21 @@ export default function SeatingTab() {
     setTableCapacity('10')
   }
 
-  const saveTable = async () => {
+  const saveTable = guard(async () => {
     if (!tableName.trim()) return
     const fields = { name: tableName.trim(), capacity: Number(tableCapacity) || 10 }
     if (editing) await update('wedding_tables', editing.id, fields)
     else await insert('wedding_tables', { ...fields, sort_order: tables.length })
     setEditing(null)
     setAddingTable(false)
-  }
+  })
 
-  const deleteTable = async () => {
+  const deleteTable = guard(async () => {
     if (!editing) return
     await remove('wedding_tables', editing.id) // guests' table_id nulls in the DB
+    setConfirmingDelete(false)
     setEditing(null)
-  }
+  })
 
   const seat = (guestId: string, tableId: string) => {
     void update('wedding_guests', guestId, { table_id: tableId })
@@ -119,14 +124,14 @@ export default function SeatingTab() {
           </div>
           <div className="sheet-actions">
             {editing && (
-              <button className="btn danger" onClick={() => void deleteTable()}>
+              <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={busy}>
                 Delete
               </button>
             )}
-            <button className="btn" onClick={() => { setEditing(null); setAddingTable(false) }}>
+            <button className="btn" onClick={() => { setEditing(null); setAddingTable(false) }} disabled={busy}>
               Cancel
             </button>
-            <button className="btn primary" onClick={() => void saveTable()} disabled={!tableName.trim()}>
+            <button className="btn primary" onClick={() => void saveTable()} disabled={busy || !tableName.trim()}>
               Save
             </button>
           </div>
@@ -139,9 +144,24 @@ export default function SeatingTab() {
         </button>
       )}
 
+      {confirmingDelete && editing && (
+        <ConfirmSheet
+          title={`Delete ${editing.name}?`}
+          message={unseatMessage(summary.tables.find((t) => t.table.id === editing.id)?.seated.length ?? 0)}
+          busy={busy}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => void deleteTable()}
+        />
+      )}
+
       {tables.length === 0 && !addingTable && (
         <p className="empty">No tables yet — add one to start seating confirmed guests.</p>
       )}
     </>
   )
+}
+
+function unseatMessage(seatedCount: number): string {
+  if (seatedCount === 0) return "This can't be undone."
+  return `Its ${seatedCount} seated guest${seatedCount === 1 ? '' : 's'} will move back to Unseated. This can't be undone.`
 }

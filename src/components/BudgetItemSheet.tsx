@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { CATEGORY_LABELS } from '../domain/budgetMath'
-import type { BudgetCategory, BudgetItem } from '../data/types'
-import ConfirmSheet from './ConfirmSheet'
-import { todayIso } from '../lib/dates'
+import type { BudgetCategory, BudgetItem, Payment } from '../data/types'
+import { shortDate, todayIso } from '../lib/dates'
 import { money } from '../lib/format'
+import { useBusy } from '../lib/useBusy'
+import ConfirmSheet from './ConfirmSheet'
 
 interface Props {
   item: BudgetItem | null // null = new item
@@ -27,6 +28,8 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
   const [payLabel, setPayLabel] = useState('deposit')
   const [payAmount, setPayAmount] = useState('')
   const [payDue, setPayDue] = useState('')
+  const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null)
+  const paymentOps = useBusy()
 
   const itemPayments = item ? payments.filter((p) => p.budget_item_id === item.id) : []
   const vendor = item?.vendor_id ? vendors.find((v) => v.id === item.vendor_id) : undefined
@@ -64,7 +67,7 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
     }
   }
 
-  const addPayment = async () => {
+  const addPayment = paymentOps.guard(async () => {
     if (!item || !payAmount.trim()) return
     await insert('wedding_payments', {
       budget_item_id: item.id,
@@ -75,7 +78,13 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
     setPayLabel('')
     setPayAmount('')
     setPayDue('')
-  }
+  })
+
+  const deletePayment = paymentOps.guard(async () => {
+    if (!paymentToDelete) return
+    await remove('wedding_payments', paymentToDelete.id)
+    setPaymentToDelete(null)
+  })
 
   const togglePaid = (id: string, paid: boolean) => {
     void update('wedding_payments', id, {
@@ -143,12 +152,16 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
                       {p.label} — {money(p.amount)}
                     </div>
                     <div className={`row-sub${overdue ? ' text-red' : ''}`}>
-                      {p.due_date ?? 'No due date'}
+                      {p.due_date ? shortDate(p.due_date) : 'No due date'}
                       {overdue && ' · overdue'}
                       {p.paid && ' · paid'}
                     </div>
                   </div>
-                  <button className="btn small danger" onClick={() => void remove('wedding_payments', p.id)}>
+                  <button
+                    className="btn small danger"
+                    onClick={() => setPaymentToDelete(p)}
+                    aria-label={`Delete ${p.label} payment`}
+                  >
                     ✕
                   </button>
                 </div>
@@ -168,7 +181,7 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
                 <input id="pay-due" type="date" value={payDue} onChange={(e) => setPayDue(e.target.value)} />
               </div>
             </div>
-            <button className="btn small" onClick={() => void addPayment()} disabled={!payAmount.trim()}>
+            <button className="btn small" onClick={() => void addPayment()} disabled={paymentOps.busy || !payAmount.trim()}>
               + Add payment
             </button>
           </>
@@ -195,6 +208,15 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
           busy={saving}
           onCancel={() => setConfirmingDelete(false)}
           onConfirm={() => void del()}
+        />
+      )}
+      {paymentToDelete && (
+        <ConfirmSheet
+          title={`Delete the ${paymentToDelete.label} payment?`}
+          message={`${money(paymentToDelete.amount)}${paymentToDelete.paid ? ' (marked paid)' : ''} — this can't be undone.`}
+          busy={paymentOps.busy}
+          onCancel={() => setPaymentToDelete(null)}
+          onConfirm={() => void deletePayment()}
         />
       )}
     </>
