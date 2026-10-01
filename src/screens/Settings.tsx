@@ -1,18 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import ConfirmSheet from '../components/ConfirmSheet'
 import SubscreenHeader from '../components/SubscreenHeader'
 import { useData } from '../data/DataProvider'
-import { updateRow } from '../data/api'
+import { applyWeddingDate } from '../data/api'
 import { recomputeDueDates } from '../domain/dueDates'
 
 export default function Settings() {
   const { signOut } = useAuth()
-  const { settings, tasks, update, refresh } = useData()
+  const { settings, tasks, update, run } = useData()
 
   const [budget, setBudget] = useState(settings.total_budget?.toString() ?? '')
   const [partnerA, setPartnerA] = useState(settings.partner_a)
   const [partnerB, setPartnerB] = useState(settings.partner_b)
+
+  // Keep the inputs in step with edits from the other phone (realtime).
+  useEffect(() => setBudget(settings.total_budget?.toString() ?? ''), [settings.total_budget])
+  useEffect(() => setPartnerA(settings.partner_a), [settings.partner_a])
+  useEffect(() => setPartnerB(settings.partner_b), [settings.partner_b])
 
   const [pendingDate, setPendingDate] = useState<string | null>(null)
   const [applying, setApplying] = useState(false)
@@ -23,10 +28,10 @@ export default function Settings() {
     if (!pendingDate) return
     setApplying(true)
     try {
-      await updateRow('wedding_settings', 1, { wedding_date: pendingDate })
-      await Promise.all(patches.map((p) => updateRow('wedding_tasks', p.id, { due_date: p.due_date })))
-      await refresh()
+      await run(() => applyWeddingDate(pendingDate, patches))
       setPendingDate(null)
+    } catch {
+      // run() already showed the error toast; keep the banner so it can be retried.
     } finally {
       setApplying(false)
     }
@@ -35,7 +40,15 @@ export default function Settings() {
   const saveBudget = () => {
     const value = budget.trim() === '' ? null : Number(budget)
     if (value !== null && Number.isNaN(value)) return
+    if (value === settings.total_budget) return
     void update('wedding_settings', 1, { total_budget: value })
+  }
+
+  // Only write when the value actually changed — blurring an untouched field
+  // must not push a stale value over the other partner's edit.
+  const saveName = (field: 'partner_a' | 'partner_b', value: string, fallback: string) => {
+    const next = value.trim() || fallback
+    if (next !== settings[field]) void update('wedding_settings', 1, { [field]: next })
   }
 
   return (
@@ -85,7 +98,7 @@ export default function Settings() {
               id="partner-a"
               value={partnerA}
               onChange={(e) => setPartnerA(e.target.value)}
-              onBlur={() => void update('wedding_settings', 1, { partner_a: partnerA.trim() || 'Partner A' })}
+              onBlur={() => saveName('partner_a', partnerA, 'Partner A')}
             />
           </div>
           <div className="field">
@@ -94,7 +107,7 @@ export default function Settings() {
               id="partner-b"
               value={partnerB}
               onChange={(e) => setPartnerB(e.target.value)}
-              onBlur={() => void update('wedding_settings', 1, { partner_b: partnerB.trim() || 'Partner B' })}
+              onBlur={() => saveName('partner_b', partnerB, 'Partner B')}
             />
           </div>
         </div>

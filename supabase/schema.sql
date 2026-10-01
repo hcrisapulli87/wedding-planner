@@ -213,11 +213,22 @@ create index if not exists wedding_tasks_due_idx     on public.wedding_tasks (du
 create index if not exists wedding_guests_table_idx  on public.wedding_guests (table_id);
 create index if not exists wedding_payments_item_idx on public.wedding_payments (budget_item_id);
 
+-- v4: cover the remaining foreign keys (Supabase performance advisor 0001).
+create index if not exists wedding_budget_items_vendor_idx   on public.wedding_budget_items (vendor_id);
+create index if not exists wedding_day_events_vendor_idx     on public.wedding_day_events (vendor_id);
+create index if not exists wedding_ideas_created_by_idx      on public.wedding_ideas (created_by);
+create index if not exists wedding_key_dates_vendor_idx      on public.wedding_key_dates (related_vendor_id);
+create index if not exists wedding_settings_venue_idx        on public.wedding_settings (venue_vendor_id);
+create index if not exists wedding_party_members_guest_idx   on public.wedding_party_members (guest_id);
+
 -- ── Settings singleton ───────────────────────────────────────────────────────
 
 insert into public.wedding_settings (id) values (1) on conflict (id) do nothing;
 
 -- ── RLS: every table shared read+write for authenticated ─────────────────────
+-- One "for all" policy per table (it already covers select). The older
+-- separate read policy is dropped — two permissive policies on the same
+-- action made Postgres evaluate both (Supabase performance advisor 0006).
 
 do $$
 declare t text;
@@ -225,18 +236,40 @@ begin
   foreach t in array array['wedding_settings','wedding_tasks','wedding_budget_items','wedding_payments','wedding_vendors','wedding_guests','wedding_tables','wedding_ideas','wedding_key_dates','wedding_day_events','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items','wedding_engagement_items'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "%s: read all (authenticated)" on public.%I', t, t);
-    execute format('create policy "%s: read all (authenticated)" on public.%I for select to authenticated using (true)', t, t);
     execute format('drop policy if exists "%s: write all (authenticated)" on public.%I', t, t);
     execute format('create policy "%s: write all (authenticated)" on public.%I for all to authenticated using (true) with check (true)', t, t);
   end loop;
 end $$;
 
--- ── Realtime on the interactive tables ───────────────────────────────────────
+-- ── Wedding-date change: one atomic call ─────────────────────────────────────
+-- Moves the date and every timeline-linked task's due date in one transaction
+-- (previously ~90 separate requests, each firing realtime on both phones).
+-- Due dates are computed client-side (src/domain/dueDates.ts) and passed in as
+-- [{ "id": uuid, "due_date": "YYYY-MM-DD" }]. SECURITY INVOKER, so the RLS
+-- policies above still apply to the caller.
+
+create or replace function public.wedding_apply_date(p_wedding_date date, p_due_dates jsonb)
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  update public.wedding_settings set wedding_date = p_wedding_date where id = 1;
+  update public.wedding_tasks t
+     set due_date = (d ->> 'due_date')::date
+    from jsonb_array_elements(p_due_dates) d
+   where t.id = (d ->> 'id')::uuid;
+$$;
+
+revoke execute on function public.wedding_apply_date(date, jsonb) from public, anon;
+grant execute on function public.wedding_apply_date(date, jsonb) to authenticated;
+
+-- ── Realtime on every table the app shows ────────────────────────────────────
 
 do $$
 declare t text;
 begin
-  foreach t in array array['wedding_tasks','wedding_guests','wedding_budget_items','wedding_payments','wedding_vendors','wedding_settings','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items','wedding_engagement_items'] loop
+  foreach t in array array['wedding_tasks','wedding_guests','wedding_budget_items','wedding_payments','wedding_vendors','wedding_settings','wedding_gifts','wedding_party_members','wedding_songs','wedding_honeymoon_items','wedding_packing_items','wedding_engagement_items','wedding_tables','wedding_ideas','wedding_key_dates','wedding_day_events'] loop
     if not exists (
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
