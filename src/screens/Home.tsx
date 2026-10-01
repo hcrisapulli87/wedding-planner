@@ -4,32 +4,8 @@ import { useData } from '../data/DataProvider'
 import { rollup } from '../domain/budgetMath'
 import { dueSoonFeed } from '../domain/dueSoon'
 import { rsvpTally } from '../domain/guestRollups'
-
-function todayIso(): string {
-  const t = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
-}
-
-function daysUntil(iso: string): number {
-  const [y, m, d] = iso.split('-').map(Number)
-  const [ty, tm, td] = todayIso().split('-').map(Number)
-  return Math.ceil((new Date(y, m - 1, d).getTime() - new Date(ty, tm - 1, td).getTime()) / 86_400_000)
-}
-
-function longDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
-function shortDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-}
-
-function money(n: number): string {
-  return '$' + n.toLocaleString(undefined, { maximumFractionDigits: 0 })
-}
+import { daysUntil, longDate, shortDate, todayIso } from '../lib/dates'
+import { money } from '../lib/format'
 
 const KIND_META = {
   task: { to: '/checklist' },

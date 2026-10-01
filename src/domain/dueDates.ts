@@ -1,3 +1,5 @@
+import { toIso } from '../lib/dates'
+
 // Due-date computation for checklist tasks. Dates are ISO YYYY-MM-DD strings
 // end-to-end; Date objects are built from local parts only (no timezone math).
 //
@@ -10,20 +12,15 @@ function parse(d: string): [number, number, number] {
   return [y, m - 1, day]
 }
 
-function fmt(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
-}
-
 export function dueDateFor(weddingDate: string, monthsOut: number): string {
   const [y, m, day] = parse(weddingDate)
   if (Number.isInteger(monthsOut) && monthsOut >= 1) {
     const target = new Date(y, m - monthsOut, 1)
     const daysInMonth = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate()
     target.setDate(Math.min(day, daysInMonth))
-    return fmt(target)
+    return toIso(target)
   }
-  return fmt(new Date(y, m, day - Math.round(monthsOut * 28)))
+  return toIso(new Date(y, m, day - Math.round(monthsOut * 28)))
 }
 
 export function recomputeDueDates(

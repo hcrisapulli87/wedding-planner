@@ -2,12 +2,7 @@ import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { Gift, GiftKind } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
-
-function todayIso(): string {
-  const t = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
-}
+import { todayIso } from '../lib/dates'
 
 export default function GiftSheet({ gift, onClose }: { gift: Gift | null; onClose: () => void }) {
   const { guests, insert, update, remove } = useData()

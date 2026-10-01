@@ -4,17 +4,10 @@ import SubscreenHeader from '../components/SubscreenHeader'
 import { useData } from '../data/DataProvider'
 import type { Gift } from '../data/types'
 import { giftRollup } from '../domain/giftRollups'
+import { shortDate } from '../lib/dates'
+import { money } from '../lib/format'
 
 type Filter = 'all' | 'to_thank' | 'thanked'
-
-function money(n: number): string {
-  return '$' + n.toLocaleString(undefined, { maximumFractionDigits: 0 })
-}
-
-function shortDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-}
 
 const KIND_LABEL = { physical: 'Gift', cash: 'Cash', voucher: 'Voucher' } as const
 

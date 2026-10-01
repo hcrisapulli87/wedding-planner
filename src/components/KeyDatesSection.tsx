@@ -1,17 +1,7 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
 import type { KeyDate } from '../data/types'
-
-function todayIso(): string {
-  const t = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
-}
-
-function longDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
-}
+import { todayIso, weekdayDate } from '../lib/dates'
 
 export default function KeyDatesSection() {
   const { keyDates, vendors, insert, update, remove } = useData()
@@ -87,7 +77,7 @@ export default function KeyDatesSection() {
             <button className="grow" onClick={() => startEdit(k)} style={{ all: 'unset', flex: 1, minWidth: 0, cursor: 'pointer' }}>
               <div className="row-title">{k.title}</div>
               <div className="row-sub">
-                {longDate(k.date)}
+                {weekdayDate(k.date)}
                 {k.time && ` · ${k.time}`}
                 {k.location && ` · ${k.location}`}
                 {k.notes && ` · ${k.notes}`}

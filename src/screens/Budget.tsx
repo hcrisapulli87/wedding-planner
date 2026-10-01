@@ -3,10 +3,7 @@ import BudgetItemSheet from '../components/BudgetItemSheet'
 import { useData } from '../data/DataProvider'
 import { CATEGORY_LABELS, committedFor, rollup } from '../domain/budgetMath'
 import type { BudgetCategory, BudgetItem } from '../data/types'
-
-function money(n: number): string {
-  return '$' + n.toLocaleString(undefined, { maximumFractionDigits: 0 })
-}
+import { money } from '../lib/format'
 
 export default function Budget() {
   const { settings, budgetItems, payments } = useData()

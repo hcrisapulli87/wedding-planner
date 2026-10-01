@@ -3,21 +3,13 @@ import { useData } from '../data/DataProvider'
 import { CATEGORY_LABELS } from '../domain/budgetMath'
 import type { BudgetCategory, BudgetItem } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
+import { todayIso } from '../lib/dates'
+import { money } from '../lib/format'
 
 interface Props {
   item: BudgetItem | null // null = new item
   defaultCategory?: BudgetCategory
   onClose: () => void
-}
-
-function todayIso(): string {
-  const t = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
-}
-
-function money(n: number): string {
-  return n.toLocaleString(undefined, { maximumFractionDigits: 0 })
 }
 
 export default function BudgetItemSheet({ item, defaultCategory, onClose }: Props) {
@@ -148,7 +140,7 @@ export default function BudgetItemSheet({ item, defaultCategory, onClose }: Prop
                   />
                   <div className="grow">
                     <div className={`row-title${overdue ? ' text-red' : ''}`}>
-                      {p.label} — ${money(p.amount)}
+                      {p.label} — {money(p.amount)}
                     </div>
                     <div className={`row-sub${overdue ? ' text-red' : ''}`}>
                       {p.due_date ?? 'No due date'}

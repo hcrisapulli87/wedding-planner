@@ -1,4 +1,5 @@
 import type { Assignee, BudgetCategory, Vendor, VendorType } from '../data/types'
+import { addDays } from '../lib/dates'
 
 // One action → three records: marking a vendor booked proposes a budget item,
 // a 20% deposit due in two weeks (only when a quote exists — editable before
@@ -38,13 +39,6 @@ export interface BookingCascade {
     due_override: boolean
     assignee: Assignee
   }
-}
-
-function addDays(iso: string, days: number): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  const t = new Date(y, m - 1, d + days)
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
 }
 
 export function bookingCascade(vendor: Vendor, today: string): BookingCascade {

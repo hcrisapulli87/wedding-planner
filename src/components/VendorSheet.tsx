@@ -3,6 +3,7 @@ import { useData } from '../data/DataProvider'
 import { bookingCascade } from '../domain/vendorBooking'
 import type { BudgetItem, Vendor, VendorStatus, VendorType } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
+import { todayIso } from '../lib/dates'
 
 export const VENDOR_TYPE_LABELS: Record<VendorType, string> = {
   venue: 'Venue',
@@ -32,12 +33,6 @@ interface Props {
   vendor: Vendor | null // null = new vendor
   defaultType?: VendorType
   onClose: () => void
-}
-
-function todayIso(): string {
-  const t = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
 }
 
 export default function VendorSheet({ vendor, defaultType, onClose }: Props) {

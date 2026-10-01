@@ -5,15 +5,8 @@ import SubscreenHeader from '../components/SubscreenHeader'
 import { useData } from '../data/DataProvider'
 import type { HoneymoonItem } from '../data/types'
 import { sortItinerary } from '../domain/honeymoon'
-
-function money(n: number): string {
-  return '$' + n.toLocaleString(undefined, { maximumFractionDigits: 0 })
-}
-
-function shortDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-}
+import { shortDate } from '../lib/dates'
+import { money } from '../lib/format'
 
 export default function Honeymoon() {
   const { honeymoonItems, packingItems, insert, update, remove } = useData()

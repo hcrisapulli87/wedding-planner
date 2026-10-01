@@ -1,7 +1,8 @@
+import { addDays } from '../lib/dates'
+
 // Aggregated "due soon" feed for Home: open tasks, unpaid payments and key
 // dates inside a horizon window. ISO YYYY-MM-DD strings compared
-// lexicographically (valid for ISO dates); addDays mirrors dueDates.ts's
-// local-parts pattern.
+// lexicographically (valid for ISO dates).
 
 interface TaskFields {
   id: string
@@ -35,13 +36,6 @@ export interface DueSoonEntry {
   title: string
   date: string
   overdue: boolean
-}
-
-function addDays(iso: string, days: number): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  const t = new Date(y, m - 1, d + days)
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
 }
 
 export function dueSoonFeed(
