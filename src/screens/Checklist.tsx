@@ -6,23 +6,13 @@ import { useData } from '../data/DataProvider'
 import { bucketLabel } from '../domain/dueDates'
 import { dueSoonFeed } from '../domain/dueSoon'
 import type { WeddingTask } from '../data/types'
+import { shortDate, todayIso } from '../lib/dates'
 
 // Timeline buckets, furthest-out first, then the after-wedding tail; user
 // tasks pinned to explicit dates group under "Pinned" at the end.
 const BUCKET_ORDER = [12, 9, 6, 3, 1, 0.5, 0.25, 0, -0.25]
 
 type Filter = 'all' | 'a' | 'b' | 'todo' | 'done'
-
-function todayIso(): string {
-  const t = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`
-}
-
-function shortDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-}
 
 export default function Checklist() {
   const { settings, tasks, update } = useData()
@@ -81,7 +71,7 @@ export default function Checklist() {
 
       {!settings.wedding_date && (
         <div className="banner">
-          <Link to="/more" style={{ color: 'inherit' }}>
+          <Link to="/settings" style={{ color: 'inherit' }}>
             Set your wedding date to get real dates →
           </Link>
         </div>

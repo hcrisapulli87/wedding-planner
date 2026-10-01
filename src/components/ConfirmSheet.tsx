@@ -10,8 +10,8 @@ interface Props {
 export default function ConfirmSheet({ title, message, confirmLabel = 'Delete', busy = false, onCancel, onConfirm }: Props) {
   return (
     <>
-      <div className="sheet-backdrop" onClick={onCancel} />
-      <div className="sheet confirm-sheet">
+      <div className="sheet-backdrop confirm-backdrop" onClick={busy ? undefined : onCancel} />
+      <div className="sheet confirm-sheet" role="alertdialog" aria-modal="true" aria-label={title}>
         <h3>{title}</h3>
         <p>{message}</p>
         <div className="sheet-actions">

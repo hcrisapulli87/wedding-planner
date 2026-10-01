@@ -37,6 +37,26 @@ export async function insertRow<T>(table: string, row: Partial<T>): Promise<T> {
   return data as T
 }
 
+/** Several rows in one request — all-or-nothing, and one refresh instead of N. */
+export async function insertRows<T>(table: string, rows: Partial<T>[]): Promise<T[]> {
+  const { data, error } = await supabase
+    .from(table)
+    .insert(rows as Record<string, unknown>[])
+    .select()
+  if (error) throw error
+  return (data ?? []) as T[]
+}
+
+/**
+ * Move the wedding date and every timeline-linked task's due date in one
+ * transaction (see wedding_apply_date in supabase/schema.sql). Due dates are
+ * computed client-side by domain/dueDates.ts and passed in.
+ */
+export async function applyWeddingDate(weddingDate: string, dueDates: Array<{ id: string; due_date: string }>): Promise<void> {
+  const { error } = await supabase.rpc('wedding_apply_date', { p_wedding_date: weddingDate, p_due_dates: dueDates })
+  if (error) throw error
+}
+
 export async function updateRow<T>(table: string, id: string | number, patch: Partial<T>): Promise<void> {
   const { error } = await supabase
     .from(table)

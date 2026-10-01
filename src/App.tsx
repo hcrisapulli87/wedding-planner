@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthProvider'
 import Layout from './components/Layout'
 import { DataProvider } from './data/DataProvider'
@@ -23,6 +23,7 @@ import Plan from './screens/Plan'
 import RunSheet from './screens/RunSheet'
 import Settings from './screens/Settings'
 import Vendors from './screens/Vendors'
+import Rings from './components/Rings'
 
 function Shell() {
   const { loading, session } = useAuth()
@@ -30,10 +31,7 @@ function Shell() {
     return (
       <main className="login">
         <div className="rings">
-          <svg width="26" height="26" viewBox="0 0 26 26">
-            <circle cx="9" cy="13" r="7" fill="none" stroke="var(--gold)" strokeWidth="2" />
-            <circle cx="17" cy="13" r="7" fill="none" stroke="var(--gold)" strokeWidth="2" />
-          </svg>
+          <Rings />
         </div>
         <h1 className="wordmark">Everafter</h1>
         <hr className="rule-ornament" />
@@ -72,6 +70,7 @@ function AppRoutes() {
         <Route path="/exports/guests" element={<GuestListPrint />} />
         <Route path="/exports/seating" element={<SeatingPrint />} />
         <Route path="/exports/music" element={<MusicPrint />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   )
