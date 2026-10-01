@@ -24,7 +24,7 @@ interface Props {
 }
 
 export default function HouseholdSheet({ guest, onClose }: Props) {
-  const { settings, insert, update, remove } = useData()
+  const { settings, insertMany, update, remove } = useData()
   const [saving, setSaving] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
@@ -50,11 +50,14 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
 
   const saveHousehold = async () => {
     const filled = members.filter((m) => m.name.trim())
-    if (filled.length === 0) return
+    if (filled.length === 0 || saving) return
     setSaving(true)
     try {
-      for (const m of filled) {
-        await insert('wedding_guests', {
+      // One request for the whole household: all-or-nothing, so a failure
+      // can't leave half the members saved and a retry can't duplicate them.
+      await insertMany(
+        'wedding_guests',
+        filled.map((m) => ({
           name: m.name.trim(),
           household: household.trim(),
           address: address.trim(),
@@ -62,8 +65,8 @@ export default function HouseholdSheet({ guest, onClose }: Props) {
           grp: m.grp,
           is_child: m.is_child,
           is_plus_one: m.is_plus_one,
-        })
-      }
+        })),
+      )
       onClose()
     } finally {
       setSaving(false)
