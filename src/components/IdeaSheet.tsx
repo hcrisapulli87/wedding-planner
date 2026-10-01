@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from '../auth/AuthProvider'
 import { useData } from '../data/DataProvider'
 import { deleteIdeaImage, uploadIdeaImage } from '../data/ideaImages'
 import type { Idea, IdeaArea } from '../data/types'
@@ -24,6 +25,7 @@ interface Props {
 
 export default function IdeaSheet({ idea, defaultArea, onClose }: Props) {
   const { insert, update, remove } = useData()
+  const { user } = useAuth()
 
   const [area, setArea] = useState<IdeaArea>(idea?.area ?? defaultArea ?? 'other')
   const [title, setTitle] = useState(idea?.title ?? '')
@@ -40,18 +42,20 @@ export default function IdeaSheet({ idea, defaultArea, onClose }: Props) {
     if (!hasContent) return
     setSaving(true)
     setError('')
+    const oldPath = idea?.image_path ?? ''
+    let uploaded = ''
     try {
-      let imagePath = idea?.image_path ?? ''
-      if (file) {
-        // Replace, don't orphan: drop the old object when a new photo is picked.
-        if (imagePath) await deleteIdeaImage(imagePath).catch(() => {})
-        imagePath = await uploadIdeaImage(file)
-      }
-      const fields = { area, title: title.trim(), url: url.trim(), notes, image_path: imagePath }
+      // Upload first, point the row at it, and only then drop the old photo —
+      // a failed upload or save must never leave the idea pointing at nothing.
+      if (file) uploaded = await uploadIdeaImage(file)
+      const fields = { area, title: title.trim(), url: url.trim(), notes, image_path: uploaded || oldPath }
       if (idea) await update('wedding_ideas', idea.id, fields)
-      else await insert('wedding_ideas', fields)
+      else await insert('wedding_ideas', { ...fields, created_by: user?.id ?? null })
+      if (uploaded && oldPath) await deleteIdeaImage(oldPath).catch(() => {})
       onClose()
     } catch (err) {
+      // The row save failed after a successful upload: don't orphan the new photo.
+      if (uploaded) void deleteIdeaImage(uploaded).catch(() => {})
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setSaving(false)

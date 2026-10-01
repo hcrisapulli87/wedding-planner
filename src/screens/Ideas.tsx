@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import IdeaSheet, { IDEA_AREA_LABELS } from '../components/IdeaSheet'
 import { useData } from '../data/DataProvider'
-import { ideaImageUrl } from '../data/ideaImages'
+import { forgetIdeaImageUrl, ideaImageUrl } from '../data/ideaImages'
 import type { Idea, IdeaArea } from '../data/types'
 
 export default function Ideas() {
@@ -65,25 +65,40 @@ export default function Ideas() {
 
 function IdeaCard({ idea, onOpen }: { idea: Idea; onOpen: () => void }) {
   const [imgUrl, setImgUrl] = useState('')
+  // Bumped when a loaded URL stops working (expired signature) to re-sign once.
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     if (idea.image_path) {
-      void ideaImageUrl(idea.image_path).then((url) => {
-        if (!cancelled) setImgUrl(url)
-      })
+      ideaImageUrl(idea.image_path)
+        .then((url) => {
+          if (!cancelled) setImgUrl(url)
+        })
+        .catch(() => {
+          if (!cancelled) setImgUrl('')
+        })
     } else {
       setImgUrl('')
     }
     return () => {
       cancelled = true
     }
-  }, [idea.image_path])
+  }, [idea.image_path, attempt])
+
+  const onImgError = () => {
+    if (attempt > 0) {
+      setImgUrl('')
+      return
+    }
+    forgetIdeaImageUrl(idea.image_path)
+    setAttempt(1)
+  }
 
   return (
     <button className="idea-card" onClick={onOpen} style={{ font: 'inherit', color: 'inherit', textAlign: 'left', padding: 0 }}>
       {imgUrl ? (
-        <img src={imgUrl} alt={idea.title || 'Inspiration'} loading="lazy" />
+        <img src={imgUrl} alt={idea.title || 'Inspiration'} loading="lazy" onError={onImgError} />
       ) : (
         idea.url && <div style={{ padding: '18px 10px 0', fontSize: '1.6rem', textAlign: 'center' }}>🔗</div>
       )}
