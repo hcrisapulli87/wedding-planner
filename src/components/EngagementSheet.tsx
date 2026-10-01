@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
+import { useBusy } from '../lib/useBusy'
 import type { EngagementCategory, EngagementItem, EngagementStatus } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
 
@@ -43,8 +44,9 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
   const [cost, setCost] = useState(item?.cost?.toString() ?? '')
   const [notes, setNotes] = useState(item?.notes ?? '')
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const { busy, guard } = useBusy()
 
-  const save = async () => {
+  const save = guard(async () => {
     if (!title.trim()) return
     const costValue = cost.trim() === '' ? null : Number(cost)
     const fields = {
@@ -60,13 +62,13 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
     if (item) await update('wedding_engagement_items', item.id, fields)
     else await insert('wedding_engagement_items', fields)
     onClose()
-  }
+  })
 
-  const del = async () => {
+  const del = guard(async () => {
     if (!item) return
     await remove('wedding_engagement_items', item.id)
     onClose()
-  }
+  })
 
   return (
     <>
@@ -125,14 +127,14 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
         </div>
         <div className="sheet-actions">
           {item && (
-            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={busy}>
               Delete
             </button>
           )}
-          <button className="btn" onClick={onClose}>
+          <button className="btn" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button className="btn primary" onClick={() => void save()} disabled={!title.trim()}>
+          <button className="btn primary" onClick={() => void save()} disabled={busy || !title.trim()}>
             Save
           </button>
         </div>
@@ -142,6 +144,7 @@ export default function EngagementSheet({ item, onClose }: { item: EngagementIte
           title="Delete this engagement party item?"
           message="This can't be undone."
           onCancel={() => setConfirmingDelete(false)}
+          busy={busy}
           onConfirm={() => void del()}
         />
       )}

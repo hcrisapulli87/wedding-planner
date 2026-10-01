@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
+import { useBusy } from '../lib/useBusy'
 import type { HoneymoonItem, HoneymoonKind } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
 
@@ -14,8 +15,9 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
   const [cost, setCost] = useState(item?.cost?.toString() ?? '')
   const [notes, setNotes] = useState(item?.notes ?? '')
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const { busy, guard } = useBusy()
 
-  const save = async () => {
+  const save = guard(async () => {
     if (!title.trim()) return
     const costValue = cost.trim() === '' ? null : Number(cost)
     const fields = {
@@ -30,13 +32,13 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
     if (item) await update('wedding_honeymoon_items', item.id, fields)
     else await insert('wedding_honeymoon_items', fields)
     onClose()
-  }
+  })
 
-  const del = async () => {
+  const del = guard(async () => {
     if (!item) return
     await remove('wedding_honeymoon_items', item.id)
     onClose()
-  }
+  })
 
   return (
     <>
@@ -80,14 +82,14 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
         </div>
         <div className="sheet-actions">
           {item && (
-            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={busy}>
               Delete
             </button>
           )}
-          <button className="btn" onClick={onClose}>
+          <button className="btn" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button className="btn primary" onClick={() => void save()} disabled={!title.trim()}>
+          <button className="btn primary" onClick={() => void save()} disabled={busy || !title.trim()}>
             Save
           </button>
         </div>
@@ -97,6 +99,7 @@ export default function HoneymoonSheet({ item, onClose }: { item: HoneymoonItem 
           title="Delete this honeymoon item?"
           message="This can't be undone."
           onCancel={() => setConfirmingDelete(false)}
+          busy={busy}
           onConfirm={() => void del()}
         />
       )}

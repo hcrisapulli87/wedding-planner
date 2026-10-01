@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
+import { useBusy } from '../lib/useBusy'
 import type { Song, SongList } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
 
@@ -14,8 +15,9 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
   const [artist, setArtist] = useState(song?.artist ?? '')
   const [notes, setNotes] = useState(song?.notes ?? '')
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const { busy, guard } = useBusy()
 
-  const save = async () => {
+  const save = guard(async () => {
     if (!title.trim()) return
     const fields = {
       list,
@@ -27,13 +29,13 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
     if (song) await update('wedding_songs', song.id, fields)
     else await insert('wedding_songs', { ...fields, sort_order: (songs.at(-1)?.sort_order ?? 0) + 10 })
     onClose()
-  }
+  })
 
-  const del = async () => {
+  const del = guard(async () => {
     if (!song) return
     await remove('wedding_songs', song.id)
     onClose()
-  }
+  })
 
   return (
     <>
@@ -76,14 +78,14 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
         </div>
         <div className="sheet-actions">
           {song && (
-            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={busy}>
               Delete
             </button>
           )}
-          <button className="btn" onClick={onClose}>
+          <button className="btn" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button className="btn primary" onClick={() => void save()} disabled={!title.trim()}>
+          <button className="btn primary" onClick={() => void save()} disabled={busy || !title.trim()}>
             Save
           </button>
         </div>
@@ -93,6 +95,7 @@ export default function SongSheet({ song, initialList, onClose }: { song: Song |
           title="Delete this song?"
           message="This can't be undone."
           onCancel={() => setConfirmingDelete(false)}
+          busy={busy}
           onConfirm={() => void del()}
         />
       )}

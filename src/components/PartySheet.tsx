@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
+import { useBusy } from '../lib/useBusy'
 import type { OutfitStatus, PartyMember, PartyRole } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
 
@@ -33,6 +34,7 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
   const [outfit, setOutfit] = useState<OutfitStatus>(member?.outfit_status ?? 'todo')
   const [notes, setNotes] = useState(member?.notes ?? '')
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const { busy, guard } = useBusy()
 
   // Guests already in the party can't be added twice (the one being edited stays pickable).
   const takenGuestIds = new Set(partyMembers.filter((m) => m.guest_id && m.id !== member?.id).map((m) => m.guest_id))
@@ -46,7 +48,7 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
     if (g.side === 'a' || g.side === 'b') setSide(g.side)
   }
 
-  const save = async () => {
+  const save = guard(async () => {
     if (!name.trim()) return
     const fields = {
       name: name.trim(),
@@ -64,13 +66,13 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
         sort_order: (partyMembers.at(-1)?.sort_order ?? 0) + 10,
       })
     onClose()
-  }
+  })
 
-  const del = async () => {
+  const del = guard(async () => {
     if (!member) return
     await remove('wedding_party_members', member.id)
     onClose()
-  }
+  })
 
   return (
     <>
@@ -147,14 +149,14 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
         </div>
         <div className="sheet-actions">
           {member && (
-            <button className="btn danger" onClick={() => setConfirmingDelete(true)}>
+            <button className="btn danger" onClick={() => setConfirmingDelete(true)} disabled={busy}>
               Delete
             </button>
           )}
-          <button className="btn" onClick={onClose}>
+          <button className="btn" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button className="btn primary" onClick={() => void save()} disabled={!name.trim()}>
+          <button className="btn primary" onClick={() => void save()} disabled={busy || !name.trim()}>
             Save
           </button>
         </div>
@@ -164,6 +166,7 @@ export default function PartySheet({ member, onClose }: { member: PartyMember | 
           title="Delete this wedding party member?"
           message="This can't be undone."
           onCancel={() => setConfirmingDelete(false)}
+          busy={busy}
           onConfirm={() => void del()}
         />
       )}
