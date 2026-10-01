@@ -41,6 +41,10 @@ export interface BookingCascade {
   }
 }
 
+export function contractTaskTitle(vendorName: string): string {
+  return `Sign contract — ${vendorName}`
+}
+
 export function bookingCascade(vendor: Vendor, today: string): BookingCascade {
   return {
     budgetItem: {
@@ -58,7 +62,7 @@ export function bookingCascade(vendor: Vendor, today: string): BookingCascade {
             due_date: addDays(today, 14),
           },
     task: {
-      title: `Sign contract — ${vendor.name}`,
+      title: contractTaskTitle(vendor.name),
       due_date: addDays(today, 7),
       due_override: true,
       assignee: 'both',

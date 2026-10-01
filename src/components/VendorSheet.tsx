@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useData } from '../data/DataProvider'
-import { bookingCascade } from '../domain/vendorBooking'
+import { bookingCascade, contractTaskTitle } from '../domain/vendorBooking'
 import type { BudgetItem, Vendor, VendorStatus, VendorType } from '../data/types'
 import ConfirmSheet from './ConfirmSheet'
 import { todayIso } from '../lib/dates'
+import { money } from '../lib/format'
 
 export const VENDOR_TYPE_LABELS: Record<VendorType, string> = {
   venue: 'Venue',
@@ -36,7 +37,7 @@ interface Props {
 }
 
 export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
-  const { insert, update, remove } = useData()
+  const { budgetItems, tasks, insert, update, remove } = useData()
 
   const [type, setType] = useState<VendorType>(vendor?.type ?? defaultType ?? 'other')
   const [name, setName] = useState(vendor?.name ?? '')
@@ -64,6 +65,14 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
   const [wantTask, setWantTask] = useState(true)
   const [depositAmount, setDepositAmount] = useState('')
   const [depositDue, setDepositDue] = useState('')
+  // A new vendor inserted by this sheet — if a later booking step fails, the
+  // retry updates this row instead of inserting the vendor a second time.
+  const [createdId, setCreatedId] = useState<string | null>(null)
+
+  const vendorId = vendor?.id ?? createdId
+  // Booking is idempotent against live data: a vendor re-booked (or a retry
+  // after a partial failure) never gets a second budget item or contract task.
+  const existingItem = vendorId ? budgetItems.find((i) => i.vendor_id === vendorId) : undefined
 
   const num = (s: string) => (s.trim() === '' ? null : Number(s))
 
@@ -95,20 +104,23 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
       setDepositAmount(preview.payment?.amount.toString() ?? '')
       setDepositDue(preview.payment?.due_date ?? '')
       setWantDeposit(preview.payment !== null)
+      setWantItem(!existingItem)
       setConfirming(true)
       return
     }
+    if (saving) return
     setSaving(true)
     try {
-      let vendorId = vendor?.id
-      if (vendor) {
-        await update('wedding_vendors', vendor.id, fields())
+      let id = vendorId
+      if (id) {
+        await update('wedding_vendors', id, fields())
       } else {
         const created = await insert<Vendor>('wedding_vendors', fields())
-        vendorId = created.id
+        id = created.id
+        setCreatedId(id)
       }
-      if (becomingBooked && vendorId) {
-        await applyCascade(vendorId)
+      if (becomingBooked) {
+        await applyCascade(id)
       }
       onClose()
     } finally {
@@ -116,9 +128,9 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
     }
   }
 
-  const applyCascade = async (vendorId: string) => {
-    const cascade = bookingCascade({ ...(vendor ?? blank()), ...fields(), id: vendorId }, todayIso())
-    if (wantItem) {
+  const applyCascade = async (id: string) => {
+    const cascade = bookingCascade({ ...(vendor ?? blank()), ...fields(), id }, todayIso())
+    if (wantItem && !existingItem) {
       const item = await insert<BudgetItem>('wedding_budget_items', cascade.budgetItem)
       if (wantDeposit && depositAmount.trim()) {
         await insert('wedding_payments', {
@@ -129,11 +141,11 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
         })
       }
     }
-    if (wantTask) {
+    if (wantTask && !tasks.some((t) => t.title === cascade.task.title)) {
       await insert('wedding_tasks', { ...cascade.task, months_out: null, from_template: false })
     }
     if (type === 'venue') {
-      await update('wedding_settings', 1, { venue_vendor_id: vendorId })
+      await update('wedding_settings', 1, { venue_vendor_id: id })
     }
   }
 
@@ -155,20 +167,26 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
         <div className="sheet">
           <h3>Book {name}?</h3>
           <p className="text-dim">This sets the vendor to Booked and can create:</p>
-          <label className="checkbox-line">
-            <input type="checkbox" checked={wantItem} onChange={(e) => setWantItem(e.target.checked)} />
-            Budget item “{name}”{quote && ` (quoted $${quote})`}
-          </label>
-          <label className="checkbox-line" style={{ opacity: wantItem ? 1 : 0.4 }}>
-            <input
-              type="checkbox"
-              checked={wantDeposit && wantItem}
-              disabled={!wantItem || !quote}
-              onChange={(e) => setWantDeposit(e.target.checked)}
-            />
-            Deposit payment{!quote && ' (needs a quote)'}
-          </label>
-          {wantItem && wantDeposit && quote && (
+          {existingItem ? (
+            <p className="text-dim">Already in the budget as “{existingItem.name}” — no new budget item or deposit.</p>
+          ) : (
+            <>
+              <label className="checkbox-line">
+                <input type="checkbox" checked={wantItem} onChange={(e) => setWantItem(e.target.checked)} />
+                Budget item “{name}”{quote && ` (quoted ${money(Number(quote))})`}
+              </label>
+              <label className="checkbox-line" style={{ opacity: wantItem ? 1 : 0.4 }}>
+                <input
+                  type="checkbox"
+                  checked={wantDeposit && wantItem}
+                  disabled={!wantItem || !quote}
+                  onChange={(e) => setWantDeposit(e.target.checked)}
+                />
+                Deposit payment{!quote && ' (needs a quote)'}
+              </label>
+            </>
+          )}
+          {!existingItem && wantItem && wantDeposit && quote && (
             <div className="field-grid">
               <div className="field">
                 <label htmlFor="dep-amount">Deposit amount</label>
@@ -180,10 +198,14 @@ export default function VendorSheet({ vendor, defaultType, onClose }: Props) {
               </div>
             </div>
           )}
-          <label className="checkbox-line">
-            <input type="checkbox" checked={wantTask} onChange={(e) => setWantTask(e.target.checked)} />
-            Task “Sign contract — {name}” due in a week
-          </label>
+          {tasks.some((t) => t.title === contractTaskTitle(name.trim())) ? (
+            <p className="text-dim">“{contractTaskTitle(name.trim())}” is already on the checklist.</p>
+          ) : (
+            <label className="checkbox-line">
+              <input type="checkbox" checked={wantTask} onChange={(e) => setWantTask(e.target.checked)} />
+              Task “{contractTaskTitle(name.trim())}” due in a week
+            </label>
+          )}
           {type === 'venue' && <p className="text-dim">Also sets this venue as *the* venue (guest capacity warnings).</p>}
           <div className="sheet-actions">
             <button className="btn" onClick={() => setConfirming(false)} disabled={saving}>
