@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Settings as SettingsIcon } from 'lucide-react'
+import { Heart, Settings as SettingsIcon } from 'lucide-react'
+import Rings from '../components/Rings'
 import { useData } from '../data/DataProvider'
 import { rollup } from '../domain/budgetMath'
 import { dueSoonFeed } from '../domain/dueSoon'
@@ -40,7 +41,15 @@ export default function Home() {
       {settings.wedding_date && days !== null ? (
         <section className="card countdown">
           <div className="kicker">{settings.partner_a} & {settings.partner_b}</div>
-          <div className="days">{days > 0 ? days : days === 0 ? '💍' : '💞'}</div>
+          <div className="days">
+            {days > 0 ? (
+              days
+            ) : days === 0 ? (
+              <Rings size={52} />
+            ) : (
+              <Heart size={46} strokeWidth={1.6} color="var(--gold)" aria-hidden="true" />
+            )}
+          </div>
           <div className="tagline">
             {days > 0 ? 'days until we say I do' : days === 0 ? "it's today — get married!" : 'married!'}
           </div>
@@ -51,7 +60,9 @@ export default function Home() {
         </section>
       ) : (
         <section className="card countdown">
-          <div className="days">💍</div>
+          <div className="days">
+            <Rings size={52} />
+          </div>
           <div className="sub">
             No date yet — <Link to="/settings">set your wedding date</Link> or work through the{' '}
             <Link to="/checklist">first checklist steps</Link>.
